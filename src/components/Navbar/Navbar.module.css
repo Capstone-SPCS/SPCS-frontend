@@ -1,0 +1,50 @@
+/* Navbar.module.css */
+.navbar {
+  width: 100%;
+  background-color: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  box-sizing: border-box;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoImg {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.logoText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.loginBtn {
+  padding: 8px 16px;
+  background-color: #5c6ac4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginBtn:hover {
+	background-color: #4c5bad;
+}
