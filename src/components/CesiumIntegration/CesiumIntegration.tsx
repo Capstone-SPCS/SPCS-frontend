@@ -1,46 +1,72 @@
-import React, { useEffect, useRef } from 'react';
-import { Cartesian3, createOsmBuildingsAsync, Ion, Math as CesiumMath, Viewer, Terrain } from 'cesium';
+import React, { useState, useEffect } from 'react';
+import { Viewer as ResiumViewer, ViewerProps } from 'resium';
+import { Ion, createWorldTerrainAsync } from 'cesium';
 import "cesium/Build/Cesium/Widgets/widgets.css";
+import SatelliteTrajectories from "./SatelliteTrajectories";
 
+const fetchSatellite1Data = async () => [
+  { time: "2024-12-01T00:00:00Z", longitude: -75, latitude: 45, altitude: 500 },
+  { time: "2024-12-01T00:30:00Z", longitude: -45, latitude: 45, altitude: 500 },
+  { time: "2024-12-01T01:00:00Z", longitude: -15, latitude: 35, altitude: 500 },
+  { time: "2024-12-01T01:30:00Z", longitude: 15, latitude: 25, altitude: 500 },
+  { time: "2024-12-01T02:00:00Z", longitude: 45, latitude: 15, altitude: 500 },
+  { time: "2024-12-01T02:30:00Z", longitude: 75, latitude: 5, altitude: 500 },
+  { time: "2024-12-01T03:00:00Z", longitude: 105, latitude: -5, altitude: 500 },
+];
 
+const fetchSatellite2Data = async () => [
+  { time: "2024-12-01T00:00:00Z", longitude: 120, latitude: -10, altitude: 400 },
+  { time: "2024-12-01T00:30:00Z", longitude: 150, latitude: -5, altitude: 400 },
+  { time: "2024-12-01T01:00:00Z", longitude: 180, latitude: 0, altitude: 400 },
+  { time: "2024-12-01T01:30:00Z", longitude: -150, latitude: 5, altitude: 400 },
+  { time: "2024-12-01T02:00:00Z", longitude: -120, latitude: 10, altitude: 400 },
+  { time: "2024-12-01T02:30:00Z", longitude: -90, latitude: 15, altitude: 400 },
+  { time: "2024-12-01T03:00:00Z", longitude: -60, latitude: 20, altitude: 400 },
+];
 
 const CesiumIntegration: React.FC = () => {
-  const cesiumContainerRef = useRef<HTMLDivElement>(null);
-  const viewerRef = useRef<Viewer | null>(null);
+  const [terrainProvider, setTerrainProvider] = useState<any>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN || ''
-      if (!viewerRef.current && cesiumContainerRef.current) {
-        try {
-          const viewer = new Viewer(cesiumContainerRef.current, {
-            terrain: Terrain.fromWorldTerrain(),
-          });
-          viewerRef.current = viewer;
-
-          viewer.camera.flyTo({
-            destination: Cartesian3.fromDegrees(-122.4175, 37.655, 400),
-            orientation: {
-              heading: CesiumMath.toRadians(0.0),
-              pitch: CesiumMath.toRadians(-15.0),
-            },
-          });
-
-        } catch (error) {
-          console.error('Error initializing Cesium viewer:', error);
-        }
-      }
+      Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN || '';
+      const initTerrain = async () => {
+        const terrain = await createWorldTerrainAsync();
+        setTerrainProvider(terrain);
+      };
+      initTerrain();
     }
-
-    return () => {
-      if (viewerRef.current && !viewerRef.current.isDestroyed()) {
-        viewerRef.current.destroy();
-        viewerRef.current = null;
-      }
-    };
   }, []);
 
-  return <div ref={cesiumContainerRef} style={{ width: '100%', height: '100%', position: 'absolute' }} />;
+  if (!terrainProvider) {
+    return null;
+  }
+
+  const viewerProps: ViewerProps = {
+    terrainProvider,
+    full: true,
+    timeline: true, // Enable timeline
+    animation: true, // Enable animation controls
+    baseLayerPicker: false,
+    scene3DOnly: true,
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
+      <ResiumViewer {...viewerProps}>
+        <SatelliteTrajectories
+          satelliteId="sat1"
+          fetchData={fetchSatellite1Data}
+          updateInterval={5000}
+        />
+        <SatelliteTrajectories
+          satelliteId="sat2"
+          fetchData={fetchSatellite2Data}
+          updateInterval={5000}
+        />
+      </ResiumViewer>
+    </div>
+  );
 };
 
 export default CesiumIntegration;
