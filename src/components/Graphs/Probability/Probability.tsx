@@ -1,60 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./Probability.module.css";
-import { event } from "../../../types/CDM";
+import {data} from '../utils/mockData'
 import * as d3 from "d3";
 
 const Probability = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-
-  const data: event = {
-    id: 0,
-    sat1_object_designator: "",
-    sat2_object_designator: "",
-    cdms: [
-      {
-        id: 0,
-        created_at: (Date.now() - 24 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1,
-        miss_distance: Math.random() * 1000,
-      },
-      {
-        id: 1,
-        created_at: (Date.now() - 20 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1 + 0.05,
-        miss_distance: Math.random() * 900,
-      },
-      {
-        id: 2,
-        created_at: (Date.now() - 16 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1 + 0.15,
-        miss_distance: Math.random() * 800,
-      },
-      {
-        id: 3,
-        created_at: (Date.now() - 12 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1 + 0.25,
-        miss_distance: Math.random() * 700,
-      },
-      {
-        id: 4,
-        created_at: (Date.now() - 8 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1 + 0.35,
-        miss_distance: Math.random() * 600,
-      },
-      {
-        id: 5,
-        created_at: (Date.now() - 4 * 60 * 60 * 1000).toString(),
-        collision_probability: Math.random() * 0.1 + 0.45,
-        miss_distance: Math.random() * 500,
-      },
-      {
-        id: 6,
-        created_at: Date.now().toString(),
-        collision_probability: Math.random() * 0.1 + 0.55,
-        miss_distance: Math.random() * 400,
-      },
-    ],
-  };
 
   useEffect(() => {
     if (svgRef.current) {
