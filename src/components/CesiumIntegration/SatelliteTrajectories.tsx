@@ -82,7 +82,7 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
         width: 3,
         material: satelliteId === "sat1" ? Color.YELLOW.withAlpha(0.7) : Color.RED.withAlpha(0.7),
         leadTime: 0,
-        trailTime: 60,
+        trailTime: Infinity,
       }}
     />
   );
