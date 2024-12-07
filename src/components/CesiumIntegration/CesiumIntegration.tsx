@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Viewer as ResiumViewer, ViewerProps } from 'resium';
 import { Ion, createWorldTerrainAsync } from 'cesium';
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import SatelliteTrajectories from "./SatelliteTrajectories";
 
+// Move data fetching functions outside component to prevent recreating on each render
 const fetchSatellite1Data = async () => [
   { time: "2024-12-01T00:00:00Z", longitude: -75, latitude: 45, altitude: 500 },
   { time: "2024-12-01T00:30:00Z", longitude: -45, latitude: 45, altitude: 500 },
@@ -30,40 +31,75 @@ const fetchSatellite2Data = async () => [
 
 const CesiumIntegration: React.FC = () => {
   const [terrainProvider, setTerrainProvider] = useState<any>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Initialize Cesium only once
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN || '';
-      const initTerrain = async () => {
-        const terrain = await createWorldTerrainAsync();
-        setTerrainProvider(terrain);
-      };
-      initTerrain();
-    }
-  }, []);
+    let mounted = true;
 
-  if (!terrainProvider) {
-    return null;
-  }
+    const initCesium = async () => {
+      if (!isInitialized && typeof window !== 'undefined') {
+        try {
+          // Set token only once
+          if (!Ion.defaultAccessToken) {
+            Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN || '';
+          }
 
-  const viewerProps: ViewerProps = {
+          const terrain = await createWorldTerrainAsync();
+          
+          if (mounted) {
+            setTerrainProvider(terrain);
+            setIsInitialized(true);
+          }
+        } catch (error) {
+          console.error('Failed to initialize Cesium:', error);
+        }
+      }
+    };
+
+    initCesium();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isInitialized]);
+
+  // Memoize viewer props to prevent unnecessary re-renders
+  const viewerProps: ViewerProps = useMemo(() => ({
     terrainProvider,
     full: true,
-    timeline: true, // Enable timeline
-    animation: true, // Enable animation controls
+    timeline: true,
+    animation: true,
     baseLayerPicker: false,
     scene3DOnly: true,
+    // Add requestRenderMode to optimize rendering
+    requestRenderMode: false,
+    maximumRenderTimeChange: Infinity,
+  }), [terrainProvider]);
+
+  // Use a container div with explicit dimensions instead of absolute positioning
+  const containerStyle = {
+    width: '100%',
+    height: '100%',
+    position: 'relative' as const,
+    minHeight: '400px', // Add minimum height to ensure visibility
   };
 
+  if (!terrainProvider || !isInitialized) {
+    return <div style={containerStyle}>Loading...</div>;
+  }
+
   return (
-    <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
+    <div style={containerStyle}>
       <ResiumViewer {...viewerProps}>
         <SatelliteTrajectories
+          key="sat1"
           satelliteId="sat1"
           fetchData={fetchSatellite1Data}
           updateInterval={5000}
         />
         <SatelliteTrajectories
+          key="sat2"
           satelliteId="sat2"
           fetchData={fetchSatellite2Data}
           updateInterval={5000}
