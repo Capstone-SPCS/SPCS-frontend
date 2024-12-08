@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@cesium/widgets": "^9.0.1",
     "@chromatic-com/storybook": "^3.2.2",
-    "@craco/craco": "^7.1.0",
     "@storybook/addon-essentials": "^8.4.6",
     "@storybook/addon-interactions": "^8.4.6",
     "@storybook/addon-links": "^8.4.6",
@@ -17,7 +15,6 @@
     "@testing-library/user-event": "^13.5.0",
     "ajv": "^8.17.1",
     "cesium": "^1.123.1",
-    "d3": "^7.9.0",
     "craco-cesium": "^1.2.0",
     "lucide-react": "^0.461.0",
     "react": "^18.3.1",
