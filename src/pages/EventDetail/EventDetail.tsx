@@ -3,6 +3,9 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { CesiumIntegration } from '../../components/CesiumIntegration'
 import styles from './EventDetail.module.css'
+import Probability from '../../components/Graphs/Probability'
+import MissDistance from '../../components/Graphs/MissDistance'
+import RSSErrorEvolution from '../../components/Graphs/RSSEvolution'
 
 const EventDetail = () => {
 	return (
@@ -64,21 +67,18 @@ const EventDetail = () => {
 			  <h2 className={styles.sectionTitle}>Event Specific</h2>
 			  <div className={styles.graphGrid}>
 				<div className={styles.graphCard}>
-				  <h3 className={styles.graphTitle}>Probability vs. HBR</h3>
 				  <div className={styles.graphContent}>
-					{/* Insert your graph component here */}
+				  <Probability></Probability>
 				  </div>
 				</div>
 				<div className={styles.graphCard}>
-				  <h3 className={styles.graphTitle}>Probability Sensitivity to RSS Error evolution</h3>
 				  <div className={styles.graphContent}>
-					{/* Insert your graph component here */}
+					<MissDistance></MissDistance>
 				  </div>
 				</div>
 				<div className={styles.graphCard}>
-				  <h3 className={styles.graphTitle}>Visualizer 3</h3>
 				  <div className={styles.graphContent}>
-					{/* Insert your graph component here */}
+					<RSSErrorEvolution></RSSErrorEvolution>
 				  </div>
 				</div>
 			  </div>
