@@ -1,8 +1,10 @@
 // Navbar.jsx
 import React from 'react'
 import styles from './Navbar.module.css'
+import useLogin from '../../hooks/useLogin'
 
 const Navbar = ({ userRole, showLogout }: { userRole?: string; showLogout?: boolean }) => {
+	const { logout, isAuthenticated } = useLogin()
 	return (
 		<nav className={styles.navbar}>
 			<div className={styles.content}>
@@ -10,7 +12,9 @@ const Navbar = ({ userRole, showLogout }: { userRole?: string; showLogout?: bool
 					<img src="/api/placeholder/24/24" alt="SCDS Logo" className={styles.logoImg} />
 					<span className={styles.logoText}>Space Collision Detection System</span>
 				</div>
-				<button className={styles.loginBtn}>Login</button>
+				<button className={styles.loginBtn} onClick={() => logout()}>
+					{isAuthenticated ? 'Logout' : ''}
+				</button>
 			</div>
 		</nav>
 	)

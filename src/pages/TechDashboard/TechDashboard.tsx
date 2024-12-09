@@ -1,8 +1,9 @@
 // TechDashboard.jsx
-import React from 'react'
+import React, { useEffect } from 'react'
 import Navbar from '../../components/Navbar'
 import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
+import { useGetEventsPreview } from '../../apiClient/useGetEventPreview'
 
 const TechDashboard = () => {
 	// Sample data - in a real app, this would come from an API
@@ -17,6 +18,14 @@ const TechDashboard = () => {
 		}
 		// ... similar objects for Events 2-6
 	]
+
+	const { getEvents, data } = useGetEventsPreview()
+
+	useEffect(() => {
+		getEvents('3')
+	}, [])
+
+	console.log(data)
 
 	const handleEventClick = (eventId: number) => {
 		// Handle navigation to event details
