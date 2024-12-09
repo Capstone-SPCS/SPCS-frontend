@@ -55,7 +55,6 @@ const useLogin = () => {
 
 
     const logout = async () => {
-        console.log("SIGING OUT")
         supabase.auth.signOut();
     }
 
