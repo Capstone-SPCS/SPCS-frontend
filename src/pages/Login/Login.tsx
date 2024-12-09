@@ -4,8 +4,10 @@ import Navbar from '../../components/Navbar'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import styles from './Login.module.css'
+import useLogin from '../../hooks/useLogin'
 
 const Login = () => {
+	const { login } = useLogin()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 
@@ -33,7 +35,14 @@ const Login = () => {
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
-						<CustomButton type="submit">Login</CustomButton>
+						<CustomButton
+							type="submit"
+							onClick={async () => {
+								const loginSuccessful = await login(email, password)
+								console.log('LOGIN SUCCESSFUL', loginSuccessful)
+							}}>
+							Login
+						</CustomButton>
 					</form>
 				</div>
 			</main>
