@@ -2,7 +2,11 @@
 import React from 'react'
 import styles from './CDMDataTable.module.css'
 
-const CDMDataTable = ({ data }: { data: { key: React.ReactNode; value: React.ReactNode }[] }) => {
+const CDMDataTable = ({
+	data
+}: {
+	data: { key: React.ReactNode | string; value: React.ReactNode | string }[]
+}) => {
 	return (
 		<div className={styles.tableContainer}>
 			<table className={styles.table}>

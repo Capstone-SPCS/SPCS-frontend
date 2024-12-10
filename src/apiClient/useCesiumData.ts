@@ -1,7 +1,7 @@
-import useQuery from './useQuery';  
+import useQuery from './useQuery';
 
-const useCesiumData = (eventId: string, cdMid: string, time: string) => {  
-    const query = `  
+const useCesiumData = (eventId: string, cdMid: string, time: string) => {
+  const query = `  
       query GetCesiumData($eventId: ID!, $cdMid: ID!, $time: String!) {  
         cesiumData(eventId: $eventId, cdMid: $cdMid, time: $time) {  
           longitude  
@@ -11,12 +11,11 @@ const useCesiumData = (eventId: string, cdMid: string, time: string) => {
           sat2ID  
         }  
       }  
-    `;  
+    `;
 
-    return useQuery({  
-        query,  
-        variables: { eventId, cdMid, time },  
-    });  
-};  
+  return useQuery({
+    query,
+  });
+};
 
 export default useCesiumData;

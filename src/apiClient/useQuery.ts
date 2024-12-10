@@ -1,47 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 interface UseQueryProps {
     query: string;
-    variables: Record<string, any>;
 }
 
-const useQuery = ({ query, variables }: UseQueryProps) => {
+const GRAPHQL_URL = process.env.REACT_APP_GQL_URL || ''
+const EXPRESS_URL = process.env.REACT_APP_EXPRESS_URL || ''
+
+const useQuery = ({ query }: UseQueryProps) => {
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/graphql', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query,
-                        variables,
-                    }),
-                });
+    const token = useSelector((state: RootState) => state.login.token);
 
-                const result = await response.json();
+    const fetchData = async (variables?: Record<string, any>) => {
+        try {
+            const response = await fetch(EXPRESS_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    "x-hasura-admin-secret": "your_hasura_admin_secret"
+                },
+                body: JSON.stringify({
+                    query,
+                    variables,
+                }),
+            });
 
-                if (result.errors) {
-                    throw new Error(result.errors.map((err: { message: any; }) => err.message).join(', '));
-                }
+            const result = await response.json();
 
-                setData(result.data);
-            } catch (err) {
-                setError(err as Error);
-            } finally {
-                setLoading(false);
+            if (result.errors) {
+                throw new Error(result.errors.map((err: { message: any; }) => err.message).join(', '));
             }
-        };
 
-        fetchData();
-    }, [query, variables]);
-
-    return { data, error, loading };
+            setData(result);
+        } catch (err) {
+            setError(err as Error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    return { data, error, loading, fetchData };
 };
 
 export default useQuery;

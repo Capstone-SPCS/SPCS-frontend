@@ -3,33 +3,36 @@ import React, { useEffect } from 'react'
 import Navbar from '../../components/Navbar'
 import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
-import { useGetEventsPreview } from '../../apiClient/useGetEventPreview'
+import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
+import { useNavigate } from 'react-router-dom'
 
 const TechDashboard = () => {
 	// Sample data - in a real app, this would come from an API
-	const events = [
-		{
-			id: 1,
-			eventId: 'EVT001',
-			objectType: 'Satellite',
-			poc: '12.5%',
-			tca: '2024-02-15',
-			numberOfCDMs: 3
-		}
-		// ... similar objects for Events 2-6
-	]
+	// const events = [
+	// 	{
+	// 		id: 1,
+	// 		eventId: 'EVT001',
+	// 		objectType: 'Satellite',
+	// 		poc: '12.5%',
+	// 		tca: '2024-02-15',
+	// 		numberOfCDMs: 3
+	// 	}
+	// 	// ... similar objects for Events 2-6
+	// ]
 
-	const { getEvents, data } = useGetEventsPreview()
+	const navigate = useNavigate()
+
+	const { fetchEvents, events } = useGetEventsPreview()
 
 	useEffect(() => {
-		getEvents('3')
+		fetchEvents()
 	}, [])
 
-	console.log(data)
+	console.log(events)
 
-	const handleEventClick = (eventId: number) => {
+	const handleEventClick = (eventId: string) => {
 		// Handle navigation to event details
-		console.log(`Navigating to event ${eventId}`)
+		navigate(`/event/${eventId}`)
 	}
 
 	return (
@@ -38,15 +41,17 @@ const TechDashboard = () => {
 			<main className={styles.main}>
 				<h1 className={styles.title}>Dashboard</h1>
 				<div className={styles.grid}>
-					{[1, 2, 3, 4, 5, 6].map((id) => (
-						<div key={id} onClick={() => handleEventClick(id)} className={styles.cardWrapper}>
+					{events?.map?.((event) => (
+						<div
+							key={event.id}
+							onClick={() => handleEventClick(event.id)}
+							className={styles.cardWrapper}>
 							<EventOverview
-								id={id.toString()}
-								eventId={`EVT00${id}`}
-								objectType="Satellite"
-								poc="12.5%"
-								tca="2024-02-15"
-								numberOfCDMs={3}
+								id={event.id.toString()}
+								sat1Designator={event.sat1_object_designator}
+								sat2Designator={event.sat2_object_designator}
+								tca={event.tca}
+								numberOfCDMs={event.cdms_aggregate.aggregate.count}
 							/>
 						</div>
 					))}
