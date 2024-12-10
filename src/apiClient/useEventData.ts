@@ -1,7 +1,7 @@
-import useQuery from './useQuery';  
+import useQuery from './useQuery';
 
-const useEventData = (id: string) => {  
-    const query = `  
+const useEventData = (id: string) => {
+  const query = `  
       query GetEventData($id: ID!) {  
         eventData(id: $id) {  
           collision_probability  
@@ -14,12 +14,11 @@ const useEventData = (id: string) => {
           sat2_ct_t  
         }  
       }  
-    `;  
+    `;
 
-    return useQuery({  
-        query,  
-        variables: { id },  
-    });  
-};  
+  return useQuery({
+    query
+  });
+};
 
 export default useEventData;

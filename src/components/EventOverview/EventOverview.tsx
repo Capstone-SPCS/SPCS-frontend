@@ -4,16 +4,14 @@ import styles from './EventOverview.module.css'
 
 const EventOverview = ({
 	id,
-	eventId,
-	objectType,
-	poc,
+	sat1Designator,
+	sat2Designator,
 	tca,
 	numberOfCDMs
 }: {
 	id: string
-	eventId: string
-	objectType: string
-	poc: string
+	sat1Designator: string
+	sat2Designator: string
 	tca: string
 	numberOfCDMs: number
 }) => {
@@ -23,15 +21,15 @@ const EventOverview = ({
 			<div className={styles.content}>
 				<div className={styles.field}>
 					<span className={styles.label}>EventId</span>
-					<span className={styles.value}>{eventId}</span>
+					<span className={styles.value}>{id}</span>
 				</div>
 				<div className={styles.field}>
-					<span className={styles.label}>Object type</span>
-					<span className={styles.value}>{objectType}</span>
+					<span className={styles.label}>Sat 1 Designator</span>
+					<span className={styles.value}>{sat1Designator}</span>
 				</div>
 				<div className={styles.field}>
-					<span className={styles.label}>POC</span>
-					<span className={styles.value}>{poc}</span>
+					<span className={styles.label}>Sat 2 Designator</span>
+					<span className={styles.value}>{sat2Designator}</span>
 				</div>
 				<div className={styles.field}>
 					<span className={styles.label}>TCA</span>

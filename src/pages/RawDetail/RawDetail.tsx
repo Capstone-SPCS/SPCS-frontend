@@ -1,25 +1,29 @@
 // RawCDMPage.jsx
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import Navbar from '../../components/Navbar'
 import CDMDataTable from '../../components/CDMDataTable'
 import styles from './RawDetail.module.css'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useRawCDM } from '../../apiClient/useRawCDM'
+import { CDM } from '../../types/CDM'
 
 const RawDetail: React.FC = () => {
 	const [activeCDM, setActiveCDM] = useState(1)
+	const navigate = useNavigate()
+	const { eventId } = useParams()
+	const { cdms, fetchCDMs } = useRawCDM()
 
 	// Sample data - replace with actual data
-	const sampleData = [
-		{ key: 'Message ID', value: 'MSG001' },
-		{ key: 'Creation Date', value: '2024-02-15' },
-		{ key: 'Object Designator', value: 'SAT123' },
-		{ key: 'Catalog ID', value: 'CAT456' },
-		{ key: 'Object Type', value: 'PAYLOAD' },
-		{ key: 'Operator', value: 'SpaceX' },
-		{ key: 'Ephemeris Name', value: 'EPH789' },
-		{ key: 'Covariance Method', value: 'CALCULATED' },
-		{ key: 'Maneuverable', value: 'YES' }
-	]
+
+	useEffect(() => {
+		fetchCDMs(eventId || '')
+	}, [])
+
+	const objectToKeyValueArray = (obj: CDM): { key: string; value: string }[] => {
+		if (obj) return Object.entries(obj).map(([key, value]) => ({ key, value })) || []
+		return []
+	}
 
 	return (
 		<div className={styles.container}>
@@ -29,7 +33,7 @@ const RawDetail: React.FC = () => {
 				<div className={styles.header}>
 					<button
 						onClick={() => {
-							/* Handle navigation */
+							navigate(-1)
 						}}
 						className={styles.backButton}>
 						<ArrowLeft size={20} />
@@ -40,18 +44,18 @@ const RawDetail: React.FC = () => {
 
 				<div className={styles.content}>
 					<div className={styles.tabs}>
-						{[1, 2, 3].map((cdmNumber) => (
+						{cdms.map((cdm) => (
 							<button
-								key={cdmNumber}
-								className={`${styles.tab} ${activeCDM === cdmNumber ? styles.activeTab : ''}`}
-								onClick={() => setActiveCDM(cdmNumber)}>
-								CDM {cdmNumber}
+								key={cdm.id}
+								className={`${styles.tab} ${activeCDM === cdm.id ? styles.activeTab : ''}`}
+								onClick={() => setActiveCDM(cdm.id)}>
+								CDM {cdm.id}
 							</button>
 						))}
 					</div>
 
 					<div className={styles.dataContainer}>
-						<CDMDataTable data={sampleData} />
+						<CDMDataTable data={objectToKeyValueArray?.(cdms?.[activeCDM])} />
 					</div>
 				</div>
 			</main>
