@@ -3,29 +3,29 @@ import React, { useEffect } from 'react'
 import Navbar from '../../components/Navbar'
 import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
-import { useGetEventsPreview } from '../../apiClient/useGetEventPreview'
+import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 
 const TechDashboard = () => {
 	// Sample data - in a real app, this would come from an API
-	const events = [
-		{
-			id: 1,
-			eventId: 'EVT001',
-			objectType: 'Satellite',
-			poc: '12.5%',
-			tca: '2024-02-15',
-			numberOfCDMs: 3
-		}
-		// ... similar objects for Events 2-6
-	]
+	// const events = [
+	// 	{
+	// 		id: 1,
+	// 		eventId: 'EVT001',
+	// 		objectType: 'Satellite',
+	// 		poc: '12.5%',
+	// 		tca: '2024-02-15',
+	// 		numberOfCDMs: 3
+	// 	}
+	// 	// ... similar objects for Events 2-6
+	// ]
 
-	const { getEvents, data } = useGetEventsPreview()
+	const { fetchEvents, events } = useGetEventsPreview()
 
 	useEffect(() => {
-		getEvents('3')
+		fetchEvents('3')
 	}, [])
 
-	console.log(data)
+	console.log(events)
 
 	const handleEventClick = (eventId: number) => {
 		// Handle navigation to event details

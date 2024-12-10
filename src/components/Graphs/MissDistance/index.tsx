@@ -1,3 +1,1 @@
-
-
-export {default} from './MissDistance'
+export { default } from './MissDistance'
