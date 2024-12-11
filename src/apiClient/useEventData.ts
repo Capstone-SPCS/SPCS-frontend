@@ -16,7 +16,7 @@ query GetEventData($id: ID!) {
 }  
 `;
 
-const useEventData = (id: string) => {
+const useEventData = () => {
   const [event, setEvent] = useState();
   const [loading, setLoading] = useState(true);
   const [eventError, setEventError] = useState();
@@ -31,9 +31,11 @@ const useEventData = (id: string) => {
     }
   }, [data])
 
-  const fetchEvent = async () => {
+  const fetchEvent = async (eventId: string) => {
     try {
-      await fetchData(); // Execute the query
+      await fetchData({
+        eventId
+      }); // Execute the query
       if (error) {
         throw new Error(error as unknown as string);
       }
