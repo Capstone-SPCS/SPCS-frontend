@@ -6,9 +6,9 @@ import RSSErrorEvolution from '../../components/Graphs/RSSEvolution'
 const GraphDetail = () => {
 	return <div>
 		<h1>GraphDetail</h1>
-		<Probability></Probability>
-		<MissDistance></MissDistance>
-		<RSSErrorEvolution></RSSErrorEvolution>
+		<Probability id={0} sat1_object_designator={''} sat2_object_designator={''} cdms={[]}></Probability>
+		<MissDistance id={0} sat1_object_designator={''} sat2_object_designator={''} cdms={[]}></MissDistance>
+		<RSSErrorEvolution id={0} sat1_object_designator={''} sat2_object_designator={''} cdms={[]}></RSSErrorEvolution>
 		</div>
 }
 
