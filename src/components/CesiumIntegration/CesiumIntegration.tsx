@@ -3,33 +3,13 @@ import { Viewer as ResiumViewer, ViewerProps } from 'resium';
 import { Ion, createWorldTerrainAsync } from 'cesium';
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import SatelliteTrajectories from "./SatelliteTrajectories";
+import { event } from "../../types/CDM"
 
-// Move data fetching functions outside component to prevent recreating on each render
-const fetchSatellite1Data = async () => [
-  { time: "2024-12-01T00:00:00Z", longitude: -75, latitude: 45, altitude: 500 },
-  { time: "2024-12-01T00:30:00Z", longitude: -45, latitude: 45, altitude: 500 },
-  { time: "2024-12-01T01:00:00Z", longitude: -15, latitude: 35, altitude: 500 },
-  { time: "2024-12-01T01:30:00Z", longitude: 15, latitude: 25, altitude: 500 },
-  { time: "2024-12-01T02:00:00Z", longitude: 45, latitude: 15, altitude: 500 },
-  { time: "2024-12-01T02:30:00Z", longitude: 75, latitude: 5, altitude: 500 },
-  { time: "2024-12-01T03:00:00Z", longitude: 105, latitude: -5, altitude: 500 },
-  { time: "2024-12-01T03:30:00Z", longitude: 125, latitude: -15, altitude: 500 },
-  { time: "2024-12-01T04:00:00Z", longitude: 150, latitude: -5, altitude: 500 },
-];
+interface CesiumIntegrationProps {
+  data?: event;
+}
 
-const fetchSatellite2Data = async () => [
-  { time: "2024-12-01T00:00:00Z", longitude: 120, latitude: -10, altitude: 400 },
-  { time: "2024-12-01T00:30:00Z", longitude: 150, latitude: -5, altitude: 400 },
-  { time: "2024-12-01T01:00:00Z", longitude: 180, latitude: 0, altitude: 400 },
-  { time: "2024-12-01T01:30:00Z", longitude: -150, latitude: 5, altitude: 400 },
-  { time: "2024-12-01T02:00:00Z", longitude: -120, latitude: 10, altitude: 400 },
-  { time: "2024-12-01T02:30:00Z", longitude: -90, latitude: 15, altitude: 400 },
-  { time: "2024-12-01T03:00:00Z", longitude: -60, latitude: 20, altitude: 400 },
-  { time: "2024-12-01T03:30:00Z", longitude: -60, latitude: 20, altitude: 400 },
-  { time: "2024-12-01T04:00:00Z", longitude: -60, latitude: 20, altitude: 400 },
-];
-
-const CesiumIntegration: React.FC = () => {
+const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
   const [terrainProvider, setTerrainProvider] = useState<any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -77,6 +57,29 @@ const CesiumIntegration: React.FC = () => {
     maximumRenderTimeChange: Infinity,
   }), [terrainProvider]);
 
+  // Fetch data functions that use the passed data
+  const fetchSatellite1Data = async () => {
+    if (!data) {
+      console.warn('No event data provided for Satellite 1.');
+      return null;
+    }
+
+    // Logic to fetch data using the `data` prop for Satellite 1
+    //console.log('Fetching data for Satellite 1 with event:', data);
+    return { satelliteId: data.sat1_object_designator , CDMs: data.cdms };
+  };
+
+  const fetchSatellite2Data = async () => {
+    if (!data) {
+      console.warn('No event data provided for Satellite 2.');
+      return null;
+    }
+
+    // Logic to fetch data using the `data` prop for Satellite 2
+    //console.log('Fetching data for Satellite 2 with event:', data);
+    return { satelliteId: data.sat2_object_designator, CDMs: data.cdms };
+  };
+
   // Use a container div with explicit dimensions instead of absolute positioning
   const containerStyle = {
     width: '100%',
@@ -93,14 +96,14 @@ const CesiumIntegration: React.FC = () => {
     <div style={containerStyle}>
       <ResiumViewer {...viewerProps}>
         <SatelliteTrajectories
-          key="sat1"
-          satelliteId="sat1"
+          satLabel="sat1"
+          satelliteId={data?.sat1_object_designator!}
           fetchData={fetchSatellite1Data}
           updateInterval={5000}
         />
-        <SatelliteTrajectories
-          key="sat2"
-          satelliteId="sat2"
+        <SatelliteTrajectories 
+          satLabel="sat2"
+          satelliteId={data?.sat2_object_designator!}
           fetchData={fetchSatellite2Data}
           updateInterval={5000}
         />
