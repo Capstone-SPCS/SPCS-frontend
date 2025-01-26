@@ -13,7 +13,7 @@ const TechDashboard = () => {
 
   useEffect(() => {
     fetchEvents(); // Fetch events when the component mounts
-  }, [fetchEvents]);
+  }, []);
 
   // Filter events when satellite filter input changes
   useEffect(() => {
