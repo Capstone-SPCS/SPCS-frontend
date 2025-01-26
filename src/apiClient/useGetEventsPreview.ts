@@ -5,11 +5,11 @@ const GET_EVENTS_PREVIEW_QUERY = `
   query GetEventsPreview {
     events {
         created_at
-            id
-            sat1_object_designator
-            sat2_object_designator
-            tca
-            cdms_aggregate {
+        id
+        sat1_object_designator
+        sat2_object_designator
+        tca
+        cdms_aggregate {
             aggregate {
                 count
             }
