@@ -58,7 +58,7 @@ const EventDetail = () => {
 						<h2 className={styles.sectionTitle}>3D Visualization</h2>
 					</div>
 					<div className={styles.visualizationContent}>
-						<CesiumIntegration />
+						<CesiumIntegration data={event}/>
 					</div>
 				</div>
 

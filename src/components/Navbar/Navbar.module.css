@@ -22,14 +22,15 @@
 }
 
 .logoImg {
-  width: 24px;
-  height: 24px;
+  width: 80px;
+  height: 80px;
   border-radius: 4px;
+  object-fit: contain;
 }
 
 .logoText {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 1000;
   color: #1a202c;
 }
 
