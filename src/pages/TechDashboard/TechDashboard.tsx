@@ -1,64 +1,78 @@
-// TechDashboard.jsx
-import React, { useEffect } from 'react'
-import Navbar from '../../components/Navbar'
-import EventOverview from '../../components/EventOverview'
-import styles from './TechDashboard.module.css'
-import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import Navbar from '../../components/Navbar';
+import EventOverview from '../../components/EventOverview';
+import styles from './TechDashboard.module.css';
+import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview';
+import { useNavigate } from 'react-router-dom';
 
 const TechDashboard = () => {
-	// Sample data - in a real app, this would come from an API
-	// const events = [
-	// 	{
-	// 		id: 1,
-	// 		eventId: 'EVT001',
-	// 		objectType: 'Satellite',
-	// 		poc: '12.5%',
-	// 		tca: '2024-02-15',
-	// 		numberOfCDMs: 3
-	// 	}
-	// 	// ... similar objects for Events 2-6
-	// ]
+  const navigate = useNavigate();
+  const [satelliteFilter, setSatelliteFilter] = useState(''); // State for the satellite filter
+  const { fetchEvents, events } = useGetEventsPreview();
+  const [filteredEvents, setFilteredEvents] = useState(events); // State for filtered events
 
-	const navigate = useNavigate()
+  useEffect(() => {
+    fetchEvents(); // Fetch events when the component mounts
+  }, [fetchEvents]);
 
-	const { fetchEvents, events } = useGetEventsPreview()
+  // Filter events when satellite filter input changes
+  useEffect(() => {
+    if (satelliteFilter === '') {
+      setFilteredEvents(events); // Show all events if filter is empty
+    } else {
+      setFilteredEvents(
+        events.filter(
+          (event) =>
+            event.sat1_object_designator.includes(satelliteFilter) ||
+            event.sat2_object_designator.includes(satelliteFilter)
+        )
+      );
+    }
+  }, [satelliteFilter, events]);
 
-	useEffect(() => {
-		fetchEvents()
-	}, [])
+  const handleEventClick = (eventId: string) => {
+    navigate(`/event/${eventId}`); // Navigate to the event details page
+  };
 
-	console.log(events)
+  return (
+    <div className={styles.container}>
+      <Navbar userRole="Technical Operator" showLogout={true} />
+      <main className={styles.main}>
+        <h1 className={styles.title}>Dashboard</h1>
 
-	const handleEventClick = (eventId: string) => {
-		// Handle navigation to event details
-		navigate(`/event/${eventId}`)
-	}
+        <div className={styles.filterWrapper}>
+          <input
+            type="text"
+            placeholder="Enter Satellite Designator ID"
+            value={satelliteFilter}
+            onChange={(e) => setSatelliteFilter(e.target.value)} // Update filter state
+            className={styles.filterInput}
+          />
+          <button className={styles.filterButton}>
+            Filter
+          </button>
+        </div>
 
-	return (
-		<div className={styles.container}>
-			<Navbar userRole="Technical Operator" showLogout={true} />
-			<main className={styles.main}>
-				<h1 className={styles.title}>Dashboard</h1>
-				<div className={styles.grid}>
-					{events?.map?.((event) => (
-						<div
-							key={event.id}
-							onClick={() => handleEventClick(event.id)}
-							className={styles.cardWrapper}>
-							<EventOverview
-								id={event.id.toString()}
-								sat1Designator={event.sat1_object_designator}
-								sat2Designator={event.sat2_object_designator}
-								tca={event.tca}
-								numberOfCDMs={event.cdms_aggregate.aggregate.count}
-							/>
-						</div>
-					))}
-				</div>
-			</main>
-		</div>
-	)
-}
+        <div className={styles.grid}>
+          {filteredEvents?.map?.((event) => (
+            <div
+              key={event.id}
+              onClick={() => handleEventClick(event.id)}
+              className={styles.cardWrapper}
+            >
+              <EventOverview
+                id={event.id.toString()}
+                sat1Designator={event.sat1_object_designator}
+                sat2Designator={event.sat2_object_designator}
+                tca={event.tca}
+                numberOfCDMs={event.cdms_aggregate.aggregate.count}
+              />
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+};
 
-export default TechDashboard
+export default TechDashboard;
