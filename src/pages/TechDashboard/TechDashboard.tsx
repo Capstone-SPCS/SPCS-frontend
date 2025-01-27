@@ -8,6 +8,9 @@ import { useNavigate } from 'react-router-dom';
 const TechDashboard = () => {
   const navigate = useNavigate();
   const [satelliteFilter, setSatelliteFilter] = useState(''); // State for the satellite filter
+  const [tcaFilter, setTcaFilter] = useState(''); // TCA filter state
+  const [cdmCountFilter, setCdmCountFilter] = useState(''); // CDM count filter state
+
   const { fetchEvents, events } = useGetEventsPreview();
   const [filteredEvents, setFilteredEvents] = useState(events); // State for filtered events
 
@@ -17,18 +20,32 @@ const TechDashboard = () => {
 
   // Filter events when satellite filter input changes
   useEffect(() => {
-    if (satelliteFilter === '') {
-      setFilteredEvents(events); // Show all events if filter is empty
-    } else {
-      setFilteredEvents(
-        events.filter(
-          (event) =>
-            event.sat1_object_designator.includes(satelliteFilter) ||
-            event.sat2_object_designator.includes(satelliteFilter)
-        )
+    let filtered = events;
+
+    // Filter by satellite designators
+    if (satelliteFilter) {
+      filtered = filtered.filter(
+        (event) =>
+          event.sat1_object_designator.includes(satelliteFilter) ||
+          event.sat2_object_designator.includes(satelliteFilter)
       );
     }
-  }, [satelliteFilter, events]);
+
+    // Filter by TCA
+    if (tcaFilter) {
+      filtered = filtered.filter((event) => event.tca.includes(tcaFilter));
+    }
+
+    // Filter by CDM count
+    if (cdmCountFilter) {
+      filtered = filtered.filter(
+        (event) =>
+          event.cdms_aggregate.aggregate.count.toString() === cdmCountFilter
+      );
+    }
+
+    setFilteredEvents(filtered);
+  }, [satelliteFilter, tcaFilter, cdmCountFilter, events]);
 
   const handleEventClick = (eventId: string) => {
     navigate(`/event/${eventId}`); // Navigate to the event details page
@@ -45,12 +62,23 @@ const TechDashboard = () => {
             type="text"
             placeholder="Enter Satellite Designator ID"
             value={satelliteFilter}
-            onChange={(e) => setSatelliteFilter(e.target.value)} // Update filter state
+            onChange={(e) => setSatelliteFilter(e.target.value)}
             className={styles.filterInput}
           />
-          <button className={styles.filterButton}>
-            Filter
-          </button>
+          <input
+            type="text"
+            placeholder="Enter TCA (e.g., 2025-01-01)"
+            value={tcaFilter}
+            onChange={(e) => setTcaFilter(e.target.value)}
+            className={styles.filterInput}
+          />
+          <input
+            type="number"
+            placeholder="Enter CDM Count"
+            value={cdmCountFilter}
+            onChange={(e) => setCdmCountFilter(e.target.value)}
+            className={styles.filterInput}
+          />
         </div>
 
         <div className={styles.grid}>
