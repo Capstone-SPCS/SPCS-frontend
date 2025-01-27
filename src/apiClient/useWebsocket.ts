@@ -1,75 +1,58 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 
-// Define types for message and error handlers
-type MessageHandler = (message: any) => void;
-type ErrorHandler = (error: Event) => void;
-
-interface UseWebSocketReturn {
-  sendMessage: (message: any) => void;
-  isConnected: boolean;
+// Define the type of events we expect from the server
+interface ServerToClientEvents {
+  message: (data: any) => void;
 }
 
-export const useWebSocket = (
-  url: string,
-  onMessage?: MessageHandler,
-  onError?: ErrorHandler
-): UseWebSocketReturn => {
-  const socketRef = useRef<WebSocket | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+// Define the type of events we send to the server
+interface ClientToServerEvents {
+  sendMessage: (data: any) => void;
+}
 
-  // Function to send a message through the WebSocket
-  const sendMessage = useCallback(
-    (message: any) => {
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        socketRef.current.send(JSON.stringify(message));
-      } else {
-        console.error("WebSocket is not connected.");
-      }
-    },
-    []
-  );
+export const useWebSocketClient = (url: string) => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>();
 
   useEffect(() => {
-    const connect = () => {
-      socketRef.current = new WebSocket(url);
+    // Initialize the socket connection
+    const socket = io(url);
 
-      socketRef.current.onopen = () => {
-        console.log("WebSocket connected");
-        setIsConnected(true);
-      };
+    socketRef.current = socket;
 
-      socketRef.current.onmessage = (event: MessageEvent) => {
-        if (onMessage) {
-          onMessage(JSON.parse(event.data));
-        }
-      };
+    // Listen for connection events
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+      setIsConnected(true);
+    });
 
-      socketRef.current.onerror = (event: Event) => {
-        console.error("WebSocket error:", event);
-        if (onError) {
-          onError(event);
-        }
-      };
+    socket.on("disconnect", () => {
+      console.log("Disconnected from WebSocket server");
+      setIsConnected(false);
+    });
 
-      socketRef.current.onclose = () => {
-        console.log("WebSocket disconnected. Reconnecting...");
-        setIsConnected(false);
-
-        // Attempt to reconnect after 5 seconds
-        setTimeout(() => {
-          connect();
-        }, 5000);
-      };
-    };
-
-    connect();
+    // Listen for 'cdmProcessed' updates
+    socket.on("cdmProcessed", (data) => {
+      console.log("Received cdmProcessed event:", data);
+      setMessages((prevUpdates) => [...prevUpdates, data]);
+    });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+      // Clean up the socket connection on unmount
+      socket.disconnect();
     };
-  }, [url, onMessage, onError]);
+  }, [url]);
 
-  return { sendMessage, isConnected };
+  // Function to send a message to the server
+  const sendMessage = (data: any) => {
+    if (socketRef.current) {
+      socketRef.current.emit("sendMessage", data);
+    } else {
+      console.error("Socket is not connected.");
+    }
+  };
+
+  return { isConnected, messages, sendMessage };
 };
