@@ -6,7 +6,6 @@ interface UseQueryProps {
     query: string;
 }
 
-const GRAPHQL_URL = process.env.REACT_APP_GQL_URL || ''
 const EXPRESS_URL = process.env.REACT_APP_EXPRESS_URL || ''
 
 const useQuery = ({ query }: UseQueryProps) => {
@@ -16,12 +15,13 @@ const useQuery = ({ query }: UseQueryProps) => {
 
     const token = useSelector((state: RootState) => state.login.token);
 
-    const fetchData = async (variables?: Record<string, any>) => {
+    const fetchData = async (variables?: Record<string, any>, bToken?: string) => {
+        console.log("fetching token with btoken", bToken)
         try {
             const response = await fetch(EXPRESS_URL, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token || bToken}`,
                     'Content-Type': 'application/json',
                     "x-hasura-admin-secret": "your_hasura_admin_secret"
                 },

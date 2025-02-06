@@ -15,23 +15,21 @@ const EventDetail = () => {
 	const { eventId } = useParams()
 	const navigate = useNavigate()
 
-	const {fetchEvent, event} = useEventData()
+	const { fetchEvent, event } = useEventData()
 
 	const handleGoRaw = () => {
 		navigate(`/raw/${eventId}`)
 	}
 
 	useEffect(() => {
-		if (eventId){
+		if (eventId) {
 			fetchEvent(eventId)
-			console.log("Event ID: ", eventId)
-			console.log("Event: ", event)
+			console.log('Event ID: ', eventId)
+			console.log('Event: ', event)
 		} else {
 			console.error('No event id provided')
 		}
 	}, [])
-
-	
 
 	return (
 		<div className={styles.container}>
@@ -58,7 +56,7 @@ const EventDetail = () => {
 						<h2 className={styles.sectionTitle}>3D Visualization</h2>
 					</div>
 					<div className={styles.visualizationContent}>
-						<CesiumIntegration data={event}/>
+						<CesiumIntegration data={event} />
 					</div>
 				</div>
 
@@ -87,17 +85,29 @@ const EventDetail = () => {
 					<div className={styles.graphGrid}>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
-								<Probability id={event?.id!} sat1_object_designator={event?.sat1_object_designator!} sat2_object_designator={event?.sat2_object_designator!} cdms={event?.cdms!} ></Probability>
+								<Probability
+									id={event?.id!}
+									sat1_object_designator={event?.sat1_object_designator!}
+									sat2_object_designator={event?.sat2_object_designator!}
+									cdms={event?.cdms!}></Probability>
 							</div>
 						</div>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
-								<MissDistance id={event?.id!} sat1_object_designator={event?.sat1_object_designator!} sat2_object_designator={event?.sat2_object_designator!} cdms={event?.cdms!}></MissDistance>
+								<MissDistance
+									id={event?.id!}
+									sat1_object_designator={event?.sat1_object_designator!}
+									sat2_object_designator={event?.sat2_object_designator!}
+									cdms={event?.cdms!}></MissDistance>
 							</div>
 						</div>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
-								<RSSErrorEvolution id={event?.id!} sat1_object_designator={event?.sat1_object_designator!} sat2_object_designator={event?.sat2_object_designator!} cdms={event?.cdms!}></RSSErrorEvolution>
+								<RSSErrorEvolution
+									id={event?.id!}
+									sat1_object_designator={event?.sat1_object_designator!}
+									sat2_object_designator={event?.sat2_object_designator!}
+									cdms={event?.cdms!}></RSSErrorEvolution>
 							</div>
 						</div>
 					</div>

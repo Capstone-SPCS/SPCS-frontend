@@ -2,7 +2,7 @@
 import React from 'react'
 import styles from './CDMDataTable.module.css'
 
-const CDMDataTable = ({
+export const CDMDataTable = ({
 	data
 }: {
 	data: { key: React.ReactNode | string; value: React.ReactNode | string }[]
@@ -46,5 +46,3 @@ const CDMDataTable = ({
 		</div>
 	)
 }
-
-export default CDMDataTable

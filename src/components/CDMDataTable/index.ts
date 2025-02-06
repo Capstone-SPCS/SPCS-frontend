@@ -1,1 +1,1 @@
-export { default } from './CDMDataTable'
+export * from './CDMDataTable'

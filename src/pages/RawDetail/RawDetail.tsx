@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import Navbar from '../../components/Navbar'
-import CDMDataTable from '../../components/CDMDataTable'
+import { CDMDataTable } from '../../components/CDMDataTable'
 import styles from './RawDetail.module.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useRawCDM } from '../../apiClient/useRawCDM'

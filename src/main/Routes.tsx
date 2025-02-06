@@ -11,7 +11,7 @@ import RawDetail from '../pages/RawDetail'
 import useLogin from '../hooks/useLogin'
 
 const AppRoutes: React.FC = () => {
-	const { isAuthenticated } = useLogin()
+	const { isAuthenticated, role } = useLogin()
 	return (
 		<Router>
 			<Routes>
@@ -24,12 +24,20 @@ const AppRoutes: React.FC = () => {
 				) : (
 					// Authenticated routes
 					<>
-						<Route path="/tech/dashboard" element={<TechDashboard />} />
-						<Route path="/front/dashboard" element={<FrontDashboard />} />
-						<Route path="/event/:eventId" element={<EventDetail />} />
-						<Route path="/graph/:type/:eventId" element={<GraphDetail />} />
-						<Route path="/raw/:eventId" element={<RawDetail />} />
-						<Route path="*" element={<Navigate to="/tech/dashboard" />} />
+						{role === 'frontline' ? (
+							<>
+								<Route path="/front/dashboard" element={<FrontDashboard />} />
+								<Route path="*" element={<Navigate to="/front/dashboard" />} />
+							</>
+						) : (
+							<>
+								<Route path="/tech/dashboard" element={<TechDashboard />} />
+								<Route path="/event/:eventId" element={<EventDetail />} />
+								<Route path="/graph/:type/:eventId" element={<GraphDetail />} />
+								<Route path="/raw/:eventId" element={<RawDetail />} />
+								<Route path="*" element={<Navigate to="/tech/dashboard" />} />
+							</>
+						)}
 					</>
 				)}
 			</Routes>
