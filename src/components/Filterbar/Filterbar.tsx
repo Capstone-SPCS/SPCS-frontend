@@ -29,6 +29,23 @@ export default function Sidebar() {
                 <span>Satellite ID</span>
               <input type="text" placeholder="Enter Satellite Designator ID" className={styles.textField} />
             </label>
+            <button>Update</button>
+            <h3>My Preferences</h3>
+            <h3>Satellite Subscriptions</h3>
+            <span>List of current subscriptions: </span>
+            <label className={styles.filterOption}>
+                <span>Satellite ID</span>
+              <input type="text" placeholder="Enter Satellite Designator ID" className={styles.textField} />
+            </label>
+            <h3>Alerting Thresholds</h3>
+            <label className={styles.filterOption}>
+                <span>Probabliity of collision</span>
+              <input type="text" placeholder="Enter a POC" className={styles.textField} />
+            </label>
+            <label className={styles.filterOption}>
+                <span>Time of Closest Approach</span>
+              <input type="text" placeholder="Enter a TCA" className={styles.textField} />
+            </label>
           </div>
         )}
       </motion.div>
