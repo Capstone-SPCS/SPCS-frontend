@@ -5,7 +5,7 @@ import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
 import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 import { useNavigate } from 'react-router-dom'
-import {useWebSocketClient} from '../../apiClient/useWebsocket'
+import {useHasuraSubscription} from '../../apiClient/useWebsocket'
 
 const TechDashboard = () => {
 	// Sample data - in a real app, this would come from an API
@@ -26,7 +26,11 @@ const TechDashboard = () => {
 	const { fetchEvents, events } = useGetEventsPreview()
 
 	// Use the hook and handle received messages in the `onMessage` callback
-	const { isConnected, messages, sendMessage } = useWebSocketClient("ws://104.131.168.48:3001");
+	const { isConnected, data } = useHasuraSubscription("ws://104.131.168.48:8080/v1/graphql");
+
+	useEffect(() => {
+		console.log("websocket data: ", data)
+	}, [data])
 
 	useEffect(() => {
 		fetchEvents()
