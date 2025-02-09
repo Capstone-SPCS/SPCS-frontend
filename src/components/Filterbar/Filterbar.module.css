@@ -1,0 +1,59 @@
+/* Filterbar.module.css */
+
+.container {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f4f4;
+  }
+  
+  .sidebar {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+  }
+  
+  .toggleContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .toggleButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .title {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .filters {
+    margin-top: 20px;
+  }
+  
+  .filterOption {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+  }
+  
+  .textField {
+    margin-left: 10px;
+    padding: 5px;
+    width: flex;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .mainContent {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #fff;
+    font-size: 16px;
+  }
+  
