@@ -1,6 +1,6 @@
-/* TechDashboard.module.css */
 .container {
-	min-height: auto;
+	height: auto;
+	min-height: 120dvh;
 	background-color: #f8f9fa;
 }
 
@@ -24,6 +24,7 @@
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	margin-top: 24px;
 	gap: 24px;
+	margin-bottom: 40px;
 }
 
 @media (min-width: 768px) {
@@ -34,4 +35,41 @@
 
 .cardWrapper {
 	cursor: pointer;
+}
+
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+	margin-top: 32px;
+	padding: 16px 0;
+}
+
+.pageButton {
+	padding: 8px 12px;
+	border: 1px solid #5c6ac4;
+	background-color: white;
+	color: #5c6ac4;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: all 0.2s ease;
+	min-width: 40px;
+}
+
+.pageButton:hover:not(.disabled) {
+	background-color: #5c6ac4;
+	color: white;
+}
+
+.pageInfo {
+	font-size: 14px;
+	color: #5c6ac4;
+	padding: 0 16px;
+}
+
+.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
 }

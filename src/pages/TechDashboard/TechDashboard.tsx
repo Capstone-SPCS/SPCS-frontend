@@ -1,44 +1,33 @@
-// TechDashboard.jsx
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar'
 import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
 import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 import { useNavigate } from 'react-router-dom'
-import {useWebSocketClient} from '../../apiClient/useWebsocket'
+import { useWebSocketClient } from '../../apiClient/useWebsocket'
 
 const TechDashboard = () => {
-	// Sample data - in a real app, this would come from an API
-	// const events = [
-	// 	{
-	// 		id: 1,
-	// 		eventId: 'EVT001',
-	// 		objectType: 'Satellite',
-	// 		poc: '12.5%',
-	// 		tca: '2024-02-15',
-	// 		numberOfCDMs: 3
-	// 	}
-	// 	// ... similar objects for Events 2-6
-	// ]
-
 	const navigate = useNavigate()
+	const [currentPage, setCurrentPage] = useState(0)
 
-	const { fetchEvents, events } = useGetEventsPreview()
-
-	// Use the hook and handle received messages in the `onMessage` callback
-	const { isConnected, messages, sendMessage } = useWebSocketClient("ws://104.131.168.48:3001");
+	const { fetchEvents, events, totalEventsCount } = useGetEventsPreview()
+	const { isConnected, messages, sendMessage } = useWebSocketClient('ws://104.131.168.48:3001')
 
 	useEffect(() => {
-		fetchEvents()
-		console.log("websocket is connected: ", isConnected)
-	}, [])
+		fetchEvents(currentPage)
+	}, [currentPage])
 
-
-	console.log(events)
+	console.log(currentPage)
+	// Calculate pagination
+	const totalPages = Math.ceil((totalEventsCount || 1) / 12)
 
 	const handleEventClick = (eventId: string) => {
-		// Handle navigation to event details
 		navigate(`/event/${eventId}`)
+	}
+
+	const handlePageChange = (pageNumber: number) => {
+		setCurrentPage(pageNumber)
+		window.scrollTo(0, 0) // Scroll to top when page changes
 	}
 
 	return (
@@ -61,6 +50,26 @@ const TechDashboard = () => {
 							/>
 						</div>
 					))}
+				</div>
+
+				<div className={styles.pagination}>
+					<button
+						className={`${styles.pageButton} ${currentPage === 0 ? styles.disabled : ''}`}
+						onClick={() => handlePageChange(currentPage - 1)}
+						disabled={currentPage === 0}>
+						←
+					</button>
+					<span className={styles.pageInfo}>
+						Page {currentPage + 1} of {totalPages}
+					</span>
+					<button
+						className={`${styles.pageButton} ${
+							currentPage === totalPages - 1 ? styles.disabled : ''
+						}`}
+						onClick={() => handlePageChange(currentPage + 1)}
+						disabled={currentPage === totalPages - 1}>
+						→
+					</button>
 				</div>
 			</main>
 		</div>

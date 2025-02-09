@@ -1,18 +1,25 @@
 import { useEffect, useState } from 'react';
 import useQuery from './useQuery'; // Make sure to adjust the import path as necessary.
 
+
+const PAGE_LIMIT = 9;
 const GET_EVENTS_PREVIEW_QUERY = `
-  query GetEventsPreview {
-    events {
+  query GetEventsPreview($limit: Int!, $offset: Int!) {
+    events(limit: $limit, offset: $offset) {
         created_at
-            id
-            sat1_object_designator
-            sat2_object_designator
-            tca
-            cdms_aggregate {
+        id
+        sat1_object_designator
+        sat2_object_designator
+        tca
+        cdms_aggregate {
             aggregate {
                 count
             }
+        }
+    }
+    events_aggregate {
+        aggregate {
+            count
         }
     }
 }
@@ -33,6 +40,7 @@ interface Event {
 
 export const useGetEventsPreview = () => {
     const [events, setEvents] = useState<Event[]>([]);
+    const [totalEventsCount, setTotalEventsCount] = useState<number | null>(0);
     const [loading, setLoading] = useState(true);
     const [eventError, setEventError] = useState();
 
@@ -43,13 +51,18 @@ export const useGetEventsPreview = () => {
     useEffect(() => {
         if (data) {
             setEvents(data.events)
+            setTotalEventsCount(data?.events_aggregate?.aggregate?.count)
+
         }
     }, [data])
 
 
-    const fetchEvents = async () => {
+    const fetchEvents = async (page: number) => {
         try {
-            await fetchData(); // Execute the query
+            await fetchData({
+                limit: PAGE_LIMIT,
+                offset: page * PAGE_LIMIT
+            }); // Execute the query
             if (error) {
                 throw new Error(error as unknown as string);
             }
@@ -60,5 +73,5 @@ export const useGetEventsPreview = () => {
         }
     };
 
-    return { events, loading, eventError, fetchEvents }; // Expose the state and data for use in components
+    return { totalEventsCount, events, loading, eventError, fetchEvents }; // Expose the state and data for use in components
 };

@@ -9,12 +9,16 @@ import CDMModal from '../../components/CDMModal/CDMModal'
 import { useWebSocketClient } from '../../apiClient/useWebsocket'
 
 const FrontDashboard = () => {
-	const { cdms, fetchShortCDMs } = useShortCDM()
+	const { totalCDMCount, cdms, fetchShortCDMs } = useShortCDM()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [selectedCDM, setSelectedCDM] = useState<number | null>(null)
 	const [latestMessage, setLatestMessage] = useState(null)
+	const [currentPage, setCurrentPage] = useState(0)
 
-	const { isConnected, messages, sendMessage } = useWebSocketClient('ws://104.131.168.48:3001')
+	const { messages } = useWebSocketClient('ws://104.131.168.48:3001')
+
+	// Calculate pagination
+	const totalPages = Math.ceil((totalCDMCount || 1) / 9)
 
 	const handleCDMClick = (id: number) => {
 		// Handle navigation to event details
@@ -35,8 +39,13 @@ const FrontDashboard = () => {
 	}
 
 	useEffect(() => {
-		fetchShortCDMs()
-	}, [])
+		fetchShortCDMs(currentPage)
+	}, [currentPage])
+
+	const handlePageChange = (pageNumber: number) => {
+		setCurrentPage(pageNumber)
+		window.scrollTo(0, 0) // Scroll to top when page changes
+	}
 
 	useEffect(() => {
 		setLatestMessage(messages[messages.length - 1]?.cdm)
@@ -75,6 +84,25 @@ const FrontDashboard = () => {
 							/>
 						</div>
 					))}
+				</div>
+				<div className={styles.pagination}>
+					<button
+						className={`${styles.pageButton} ${currentPage === 0 ? styles.disabled : ''}`}
+						onClick={() => handlePageChange(currentPage - 1)}
+						disabled={currentPage === 0}>
+						←
+					</button>
+					<span className={styles.pageInfo}>
+						Page {currentPage + 1} of {totalPages}
+					</span>
+					<button
+						className={`${styles.pageButton} ${
+							currentPage === totalPages - 1 ? styles.disabled : ''
+						}`}
+						onClick={() => handlePageChange(currentPage + 1)}
+						disabled={currentPage === totalPages - 1}>
+						→
+					</button>
 				</div>
 			</main>
 		</div>

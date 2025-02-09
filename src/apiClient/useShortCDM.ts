@@ -13,18 +13,25 @@ interface SimplifiedCDM {
     operator: string;
 }
 
+const PAGE_LIMIT = 12;
+
 const GET_SHORT_CDMS_QUERY = `
-query GetShortCDMs {
-  cdms(limit: 9, order_by: {created_at: desc}) {
-    id
-    created_at
-    message_id
-    event_id
-    collision_probability
-    tca
-    originator
-    sat1_operator_organization
-  }
+query GetShortCDMs($limit: Int!, $offset: Int!) {
+    cdms(limit: $limit, offset: $offset, order_by: {created_at: desc}) {
+        id
+        created_at
+        message_id
+        event_id
+        collision_probability
+        tca
+        originator
+        sat1_operator_organization
+    }
+    cdms_aggregate {
+        aggregate {
+            count
+        }
+    }
 }
 
 `;
@@ -33,6 +40,7 @@ export const useShortCDM = () => {
     const [cdms, setCDMs] = useState<SimplifiedCDM[]>([]);
     const [loading, setLoading] = useState(true);
     const [cdmsError, setCDMsError] = useState<Error | undefined>();
+    const [totalCDMCount, setTotalEventsCount] = useState<number | null>();
 
     const { data, error, fetchData } = useQuery({
         query: GET_SHORT_CDMS_QUERY,
@@ -52,13 +60,18 @@ export const useShortCDM = () => {
                 operator: cdm.sat1_operator_organization
             }));
             setCDMs(transformedCDMs);
+            setTotalEventsCount(data?.cdms_aggregate?.aggregate?.count);
         }
     }, [data]);
 
-    const fetchShortCDMs = async () => {
+    const fetchShortCDMs = async (page: number) => {
         try {
             setLoading(true);
-            await fetchData();
+            await fetchData({
+                limit: PAGE_LIMIT,
+                offset: page * PAGE_LIMIT
+            }); // Execute the query
+
             if (error) {
                 throw new Error(error as unknown as string);
             }
@@ -69,10 +82,5 @@ export const useShortCDM = () => {
         }
     };
 
-    // Automatically fetch CDMs when the hook is mounted
-    useEffect(() => {
-        fetchShortCDMs();
-    }, []);
-
-    return { cdms, loading, cdmsError, fetchShortCDMs };
+    return { totalCDMCount, cdms, loading, cdmsError, fetchShortCDMs };
 };
