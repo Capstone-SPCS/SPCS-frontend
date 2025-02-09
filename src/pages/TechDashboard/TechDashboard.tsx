@@ -4,14 +4,12 @@ import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
 import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 import { useNavigate } from 'react-router-dom'
-import { useWebSocketClient } from '../../apiClient/useWebsocket'
 
 const TechDashboard = () => {
 	const navigate = useNavigate()
 	const [currentPage, setCurrentPage] = useState(0)
 
 	const { fetchEvents, events, totalEventsCount } = useGetEventsPreview()
-	const { isConnected, messages, sendMessage } = useWebSocketClient('ws://104.131.168.48:3001')
 
 	useEffect(() => {
 		fetchEvents(currentPage)

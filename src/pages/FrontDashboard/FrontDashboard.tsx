@@ -6,7 +6,6 @@ import styles from './FrontDashboard.module.css'
 import { useShortCDM } from '../../apiClient/useShortCDM'
 import AlertModal from '../../components/AlertModal/AlertModal'
 import CDMModal from '../../components/CDMModal/CDMModal'
-import { useWebSocketClient } from '../../apiClient/useWebsocket'
 
 const FrontDashboard = () => {
 	const { totalCDMCount, cdms, fetchShortCDMs } = useShortCDM()
@@ -14,8 +13,6 @@ const FrontDashboard = () => {
 	const [selectedCDM, setSelectedCDM] = useState<number | null>(null)
 	const [latestMessage, setLatestMessage] = useState(null)
 	const [currentPage, setCurrentPage] = useState(0)
-
-	const { messages } = useWebSocketClient('ws://104.131.168.48:3001')
 
 	// Calculate pagination
 	const totalPages = Math.ceil((totalCDMCount || 1) / 9)
@@ -46,11 +43,6 @@ const FrontDashboard = () => {
 		setCurrentPage(pageNumber)
 		window.scrollTo(0, 0) // Scroll to top when page changes
 	}
-
-	useEffect(() => {
-		setLatestMessage(messages[messages.length - 1]?.cdm)
-	}, [messages])
-	console.log('messages', messages)
 
 	return (
 		<div className={styles.container}>
@@ -110,3 +102,6 @@ const FrontDashboard = () => {
 }
 
 export default FrontDashboard
+function useWebSocketClient(arg0: string): { messages: any } {
+	throw new Error('Function not implemented.')
+}
