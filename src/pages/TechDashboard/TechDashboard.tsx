@@ -13,6 +13,7 @@ const TechDashboard = () => {
 	const navigate = useNavigate()
 	const [currentPage, setCurrentPage] = useState(0)
 	const satelliteId = useSelector((state: RootState) => state.filters.satelliteId)
+	const subscriptions = useSelector((state: RootState) => state.filters.subscriptions)
 	const { fetchEvents, events, totalEventsCount } = useGetEventsPreview()
 
 	const { isConnected, data, connect } = useHasuraSubscription(
@@ -21,10 +22,10 @@ const TechDashboard = () => {
 	const [unsubscribe, setUnsubscribe] = useState<() => void>() // Unsubscribe function
 
 	useEffect(() => {
-		console.log('Begin Connection')
-		const unsub = connect(['39265', '39089'])
+		if (unsubscribe) unsubscribe()
+		const unsub = connect(subscriptions)
 		setUnsubscribe(() => unsub)
-	}, [])
+	}, [subscriptions])
 
 	useEffect(() => {
 		console.log(data)
