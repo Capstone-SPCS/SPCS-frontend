@@ -16,7 +16,7 @@ const useQuery = ({ query }: UseQueryProps) => {
     const token = useSelector((state: RootState) => state.login.token);
 
     const fetchData = async (variables?: Record<string, any>, bToken?: string) => {
-        console.log("fetching token with btoken", bToken)
+        // console.log("fetching token with btoken", bToken)
         try {
             const response = await fetch(EXPRESS_URL, {
                 method: 'POST',

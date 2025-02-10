@@ -4,18 +4,34 @@ import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
 import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 import { useNavigate } from 'react-router-dom'
+import { useHasuraSubscription } from '../../apiClient/useWebsocket'
 
 const TechDashboard = () => {
 	const navigate = useNavigate()
 	const [currentPage, setCurrentPage] = useState(0)
 
 	const { fetchEvents, events, totalEventsCount } = useGetEventsPreview()
+	
+
+	const { isConnected, data, connect } = useHasuraSubscription('ws://104.131.168.48:8080/v1/graphql')
+	const [unsubscribe, setUnsubscribe] = useState<()=>void>(); // Unsubscribe function
+
+
+	useEffect(() => {
+		console.log("Begin Connection")
+		const unsub =  connect(['39265', "39089"])
+		setUnsubscribe(() => unsub)
+	}, [])
+
+	useEffect(() => {
+		console.log(data)
+	}, [isConnected, data])
+	
 
 	useEffect(() => {
 		fetchEvents(currentPage)
 	}, [currentPage])
 
-	console.log(currentPage)
 	// Calculate pagination
 	const totalPages = Math.ceil((totalEventsCount || 1) / 12)
 
