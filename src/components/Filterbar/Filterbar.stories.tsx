@@ -1,16 +1,16 @@
-import React from 'react';  
-import { Meta } from '@storybook/react';  
-import Filterbar from './Filterbar';  
+import React from 'react'
+import { Meta } from '@storybook/react'
+import Filterbar from './Filterbar'
 
-const meta: Meta<typeof Filterbar> = {  
-  title: 'Filter/Filterbar',  
-  component: Filterbar,  
-};  
+const meta: Meta<typeof Filterbar> = {
+	title: 'Filter/Filterbar',
+	component: Filterbar
+}
 
-function Default() {  
-  return <Filterbar />;  
-}  
+function Default() {
+	return <Filterbar>child</Filterbar>
+}
 
-Default.storyName = 'Default View';  
+Default.storyName = 'Default View'
 
-export { meta as default, Default };
+export { meta as default, Default }

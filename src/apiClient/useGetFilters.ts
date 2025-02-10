@@ -3,7 +3,7 @@ import useQuery from "./useQuery"; // Ensure this hook is implemented for handli
 import useMutation from "./useMutation"; // Ensure this hook is implemented for handling GraphQL mutations
 
 const GET_SUBSCRIPTIONS_QUERY = `
-    query GetUserSubscriptions($userID: Int!) {
+    query GetUserSubscriptions($userID: String!) {
         subscriptions(where: {user_id: {_eq: $userID}}) {
             satellite_id
         }
@@ -11,7 +11,7 @@ const GET_SUBSCRIPTIONS_QUERY = `
 `;
 
 const UPDATE_SUBSCRIPTIONS_MUTATION = `
-    mutation UpdateUserSubscription($userID: Int!, $newSatelliteIds: [String!]!) {
+    mutation UpdateUserSubscription($userID: String!, $newSatelliteIds: [String!]!) {
         update_subscriptions(
             where: { user_id: { _eq: $userID } },
             _set: { satellite_id: $newSatelliteIds }
@@ -23,6 +23,18 @@ const UPDATE_SUBSCRIPTIONS_MUTATION = `
         }
     }
 `;
+
+const ADD_SUBSCRIPTION_MUTATION = `
+    mutation UpdateUserSubscription($userID: String!, $newSatelliteId: bigint!) {
+        insert_subscriptions(objects: [{user_id: $userID, satellite_id: $newSatelliteId}]) {
+            affected_rows
+            returning {
+            id
+            }
+        }
+    }
+
+`
 
 interface Subscription {
     satellite_id: string;
@@ -37,9 +49,13 @@ export const useGetUserSubscriptions = () => {
         query: GET_SUBSCRIPTIONS_QUERY,
     });
 
-    const { mutate } = useMutation({
+    const updateMutation = useMutation({
         mutation: UPDATE_SUBSCRIPTIONS_MUTATION,
     });
+
+    const insertMutation = useMutation({
+        mutation: ADD_SUBSCRIPTION_MUTATION
+    })
 
     useEffect(() => {
         if (data) {
@@ -47,7 +63,7 @@ export const useGetUserSubscriptions = () => {
         }
     }, [data]);
 
-    const fetchSubscriptions = async (userID: number) => {
+    const fetchSubscriptions = async (userID: string) => {
         try {
             await fetchData({ userID }); // Execute the query
         } catch (err: any) {
@@ -57,14 +73,23 @@ export const useGetUserSubscriptions = () => {
         }
     };
 
-    const updateSubscriptions = async (userID: number, newSatelliteIds: string[]) => {
+    const updateSubscriptions = async (userID: string, newSatelliteIds: number[]) => {
         try {
-            await mutate({ userID, newSatelliteIds });
+            await updateMutation.mutate({ userID, newSatelliteIds });
             fetchSubscriptions(userID); // Refresh subscriptions after update
         } catch (err: any) {
             setError(err);
         }
     };
 
-    return { subscriptions, loading, error, fetchSubscriptions, updateSubscriptions }; // Expose state and functions
+    const addSubscription = async (userID: string, newSatelliteId: number) => {
+        try {
+            await insertMutation.mutate({ userID, newSatelliteId });
+            fetchSubscriptions(userID); // Refresh subscriptions after update
+        } catch (err: any) {
+            setError(err);
+        }
+    };
+
+    return { subscriptions, loading, error, fetchSubscriptions, updateSubscriptions, addSubscription }; // Expose state and functions
 };

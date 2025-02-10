@@ -10,6 +10,7 @@ const useLogin = () => {
     const [error, setError] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
     const [pendingAuth, setPendingAuth] = useState<{
+        id: string;
         user: string;
         token: string;
     } | null>(null);
@@ -23,6 +24,7 @@ const useLogin = () => {
         if (operator && pendingAuth) {
             setRole(operator.role);
             dispatch(authenticate({
+                id: pendingAuth.id,
                 user: pendingAuth.user,
                 token: pendingAuth.token,
                 role: operator.role || ''
@@ -36,6 +38,7 @@ const useLogin = () => {
             if (session) {
                 await fetchOperator(session.user.id, session.access_token);
                 setPendingAuth({
+                    id: session.user.id || '',
                     user: session.user.email || '',
                     token: session.access_token || ''
                 });
@@ -61,6 +64,7 @@ const useLogin = () => {
 
             await fetchOperator(data.user.id, data.session.access_token);
             setPendingAuth({
+                id: data.user.id,
                 user: email,
                 token: data.session.access_token
             });

@@ -8,7 +8,8 @@ const GET_OPERATOR_BY_UID_QUERY = `
       name
       uid
       role
-      threshold
+      poc_threshold
+      tca_threshold
     }
   }
 `;
@@ -18,7 +19,8 @@ interface Operator {
     name: string;
     uid: string;
     role: string;
-    threshold: number
+    poc_threshold: number
+    tca_threshold: number
 }
 
 export const useGetOperator = () => {

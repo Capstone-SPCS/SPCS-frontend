@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { createClient, Client } from "graphql-ws";
 
 interface Event {
@@ -54,7 +54,7 @@ export const useHasuraSubscription = (url: string) => {
       console.warn("No satellite IDs available, delaying WebSocket connection.");
       return;
     }
-    
+
     // Create GraphQL WebSocket client
     const client = createClient({
       url,

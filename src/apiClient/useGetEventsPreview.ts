@@ -3,25 +3,66 @@ import useQuery from './useQuery'; // Make sure to adjust the import path as nec
 
 
 const PAGE_LIMIT = 9;
+
+const GET_ALL_EVENTS_PREVIEW_QUERY = `
+query GetAllEventsPreview($limit: Int!, $offset: Int!) {
+  events(
+    limit: $limit, 
+    offset: $offset
+  ) {
+    created_at
+    id
+    sat1_object_designator
+    sat2_object_designator
+    tca
+    cdms_aggregate {
+      aggregate {
+        count
+      }
+    }
+  }
+  events_aggregate {
+    aggregate {
+      count
+    }
+  }
+}
+`
 const GET_EVENTS_PREVIEW_QUERY = `
-  query GetEventsPreview($limit: Int!, $offset: Int!) {
-    events(limit: $limit, offset: $offset) {
-        created_at
-        id
-        sat1_object_designator
-        sat2_object_designator
-        tca
-        cdms_aggregate {
-            aggregate {
-                count
-            }
-        }
+query GetFilteredEventsPreview($limit: Int!, $offset: Int!, $satelliteId: String!) {
+  events(
+    limit: $limit, 
+    offset: $offset,
+    where: {
+      _or: [
+        {sat1_object_designator: {_eq: $satelliteId}},
+        {sat2_object_designator: {_eq: $satelliteId}}
+      ]
     }
-    events_aggregate {
-        aggregate {
-            count
-        }
+  ) {
+    created_at
+    id
+    sat1_object_designator
+    sat2_object_designator
+    tca
+    cdms_aggregate {
+      aggregate {
+        count
+      }
     }
+  }
+  events_aggregate(
+    where: {
+      _or: [
+        {sat1_object_designator: {_eq: $satelliteId}},
+        {sat2_object_designator: {_eq: $satelliteId}}
+      ]
+    }
+  ) {
+    aggregate {
+      count
+    }
+  }
 }
 `;
 
@@ -43,29 +84,49 @@ export const useGetEventsPreview = () => {
     const [totalEventsCount, setTotalEventsCount] = useState<number | null>(0);
     const [loading, setLoading] = useState(true);
     const [eventError, setEventError] = useState();
+    const [isFiltered, setIsFiltered] = useState(false);
 
-    const { data, error, fetchData } = useQuery({
+    const filtered = useQuery({
         query: GET_EVENTS_PREVIEW_QUERY,
     });
 
+    const all = useQuery({
+        query: GET_ALL_EVENTS_PREVIEW_QUERY
+    })
+
     useEffect(() => {
+        const data = isFiltered ? filtered.data : all.data
         if (data) {
             setEvents(data.events)
             setTotalEventsCount(data?.events_aggregate?.aggregate?.count)
 
         }
-    }, [data])
+    }, [all.data, filtered.data])
 
 
-    const fetchEvents = async (page: number) => {
+    const fetchEvents = async (page: number, satelliteId: string | null) => {
         try {
-            await fetchData({
-                limit: PAGE_LIMIT,
-                offset: page * PAGE_LIMIT
-            }); // Execute the query
-            if (error) {
-                throw new Error(error as unknown as string);
+            setIsFiltered(!!satelliteId)
+            if (satelliteId) {
+                await filtered.fetchData({
+                    limit: PAGE_LIMIT,
+                    offset: page * PAGE_LIMIT,
+                    satelliteId: satelliteId || ""
+                }); // Execute the query
+                if (filtered.error) {
+                    throw new Error(filtered.error as unknown as string);
+                }
+            } else {
+                await all.fetchData({
+                    limit: PAGE_LIMIT,
+                    offset: page * PAGE_LIMIT,
+                }); // Execute the query
+                if (all.error) {
+                    throw new Error(all.error as unknown as string);
+                }
             }
+
+
         } catch (err: any) {
             setEventError(err); // Capture any error during the fetch
         } finally {
