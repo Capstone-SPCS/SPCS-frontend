@@ -1,25 +1,60 @@
 import { useEffect, useState, useRef } from "react";
 import { createClient, Client } from "graphql-ws";
 
-// Placeholder query: Replace with actual Hasura subscription
+interface Event {
+  created_at: string;
+  id: string;
+  sat1_object_designator: string;
+  sat2_object_designator: string;
+  tca: string;
+  cdms_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
+interface SubscriptionResponse {
+  events: Event[];
+}
+
 const SUBSCRIPTION_QUERY = `
-  subscription MyQuery {
-        operators {
+  subscription GetMostRecentEvent($satelliteIds: [String!]!) {
+    events(
+      limit: 1, 
+      where: {
+        _or: [
+          { sat1_object_designator: { _in: $satelliteIds } },
+          { sat2_object_designator: { _in: $satelliteIds } }
+        ]
+      }, 
+      order_by: { created_at: desc }
+    ) {
+        created_at
         id
-        name
-        uid
-        role
-        threshold
+        sat1_object_designator
+        sat2_object_designator
+        tca
+        cdms_aggregate {
+            aggregate {
+                count
+            }
         }
     }
+}
 `;
 
-export const useHasuraSubscription = (url: string, query = SUBSCRIPTION_QUERY) => {
+export const useHasuraSubscription = (url: string) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Event | null>(null);
   const clientRef = useRef<Client | null>(null);
 
-  useEffect(() => {
+  const connect = (satelliteIds: string[]) => {
+    if (satelliteIds.length === 0) {
+      console.warn("No satellite IDs available, delaying WebSocket connection.");
+      return;
+    }
+    
     // Create GraphQL WebSocket client
     const client = createClient({
       url,
@@ -34,11 +69,11 @@ export const useHasuraSubscription = (url: string, query = SUBSCRIPTION_QUERY) =
     setIsConnected(true);
 
     const unsubscribe = client.subscribe(
-      { query },
+      { query: SUBSCRIPTION_QUERY, variables: { satelliteIds } },
       {
-        next: ({ data }) => {
+        next: ({ data }: { data: SubscriptionResponse }) => {
           console.log("New subscription data:", data);
-          setData((prev) => [...prev, data]);
+          setData(data?.events?.[0] || null);
         },
         error: (err) => {
           console.error("Subscription error:", err);
@@ -48,11 +83,8 @@ export const useHasuraSubscription = (url: string, query = SUBSCRIPTION_QUERY) =
       }
     );
 
-    return () => {
-      unsubscribe();
-      setIsConnected(false);
-    };
-  }, [url, query]);
+    return unsubscribe;
+  };
 
-  return { isConnected, data };
+  return { isConnected, data, connect };
 };

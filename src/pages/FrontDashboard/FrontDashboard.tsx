@@ -6,6 +6,7 @@ import styles from './FrontDashboard.module.css'
 import { useShortCDM } from '../../apiClient/useShortCDM'
 import AlertModal from '../../components/AlertModal/AlertModal'
 import CDMModal from '../../components/CDMModal/CDMModal'
+import { useHasuraSubscription } from '../../apiClient/useWebsocket'
 
 const FrontDashboard = () => {
 	const { totalCDMCount, cdms, fetchShortCDMs } = useShortCDM()
@@ -13,9 +14,22 @@ const FrontDashboard = () => {
 	const [selectedCDM, setSelectedCDM] = useState<number | null>(null)
 	const [latestMessage, setLatestMessage] = useState(null)
 	const [currentPage, setCurrentPage] = useState(0)
-
+	const { isConnected, data, connect } = useHasuraSubscription('ws://104.131.168.48:8080/v1/graphql')
+	const [unsubscribe, setUnsubscribe] = useState<()=>void>(); // Unsubscribe function
 	// Calculate pagination
 	const totalPages = Math.ceil((totalCDMCount || 1) / 9)
+
+	useEffect(() => {
+		console.log("Begin Connection")
+		setUnsubscribe( connect(['39265', '39089']))
+		console.log(isConnected)
+	}, [])
+
+	useEffect(() => {
+		console.log("Is connected?")
+		console.log(isConnected)
+		console.log(data)
+	}, [isConnected, data])
 
 	const handleCDMClick = (id: number) => {
 		// Handle navigation to event details
