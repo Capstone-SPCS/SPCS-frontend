@@ -64,7 +64,7 @@ const CDMModal = ({ isOpen, onClose, onDispatch, cdmData }: CDMModalProps) => {
 							OK
 						</button>
 						<button className={styles.buttonPrimary} onClick={onDispatch}>
-							Dispatch
+							Copy
 						</button>
 					</div>
 				</div>
