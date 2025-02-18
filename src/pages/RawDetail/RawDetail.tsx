@@ -44,11 +44,11 @@ const RawDetail: React.FC = () => {
 
 				<div className={styles.content}>
 					<div className={styles.tabs}>
-						{cdms.map((cdm) => (
+						{cdms.map((cdm, index) => (
 							<button
 								key={cdm.id}
 								className={`${styles.tab} ${activeCDM === cdm.id ? styles.activeTab : ''}`}
-								onClick={() => setActiveCDM(cdm.id)}>
+								onClick={() => setActiveCDM(index)}>
 								CDM {cdm.id}
 							</button>
 						))}
