@@ -18,12 +18,18 @@ query GetEventData($eventId: bigint) {
       sat1_x
       sat1_y
       sat1_z
+      sat1_x_dot
+      sat1_y_dot
+      sat1_z_dot
       sat2_cn_n
       sat2_cr_r
       sat2_ct_t
       sat2_x
       sat2_y
       sat2_z
+      sat2_x_dot
+      sat2_y_dot
+      sat2_z_dot
     }
   }
 } 
