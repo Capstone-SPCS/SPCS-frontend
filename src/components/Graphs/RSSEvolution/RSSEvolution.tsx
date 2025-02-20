@@ -10,9 +10,9 @@ const RSSEvolution = (data: event | undefined) => {
   useEffect(() => {
     if (data?.id) {
     if (svgRef.current) {
-      const margin = { top: 20, right: 30, bottom: 40, left: 40 };
-      const width = 800 - margin.left - margin.right;
-      const height = 400 - margin.top - margin.bottom;
+      const margin = { top: 20, right: 0, bottom: 40, left: 70 };
+      const width = window.innerWidth/4.5 - margin.left - margin.right;
+      const height = 250 - margin.top - margin.bottom;
 
       // Filter out invalid dates by directly converting timestamps to Date objects
       const validData = data?.cdms?.filter?.((d) => {
@@ -102,18 +102,19 @@ const RSSEvolution = (data: event | undefined) => {
         .append("g")
         .attr("class", "x-axis")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).ticks(5));
 
       chartGroup
         .append("g")
         .attr("class", "y-axis")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft(y).tickFormat(d3.format(".1e"))); // ".1e" keeps 1 decimal in scientific notation
+      
 
       // Add labels
       chartGroup
         .append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
+        .attr("y", 0 - margin.left/2 - 20)
         .attr("x", 0 - height / 2)
         .style("text-anchor", "middle")
         .text("RSS Error (m)");
@@ -141,11 +142,11 @@ const RSSEvolution = (data: event | undefined) => {
         .text("SAT2 RSS");
     }
   }
-  }, [data]);
+  }, [data, window.innerWidth]);
 
   return (
     <div className={styles.container}>
-      <h2>RSS Error Evolution for SAT1 and SAT2</h2>
+      <h3>RSS Error Evolution for SAT1 and SAT2</h3>
       <svg ref={svgRef}></svg>
     </div>
   );
