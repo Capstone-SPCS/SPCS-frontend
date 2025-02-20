@@ -13,6 +13,8 @@ query GetEventData($eventId: bigint) {
       collision_probability  
       miss_distance 
       sat1_cn_n
+      sat1_cn_r
+      sat1_cn_t
       sat1_cr_r
       sat1_ct_t
       sat1_x
@@ -22,6 +24,8 @@ query GetEventData($eventId: bigint) {
       sat1_y_dot
       sat1_z_dot
       sat2_cn_n
+      sat2_cn_r
+      sat2_cn_t
       sat2_cr_r
       sat2_ct_t
       sat2_x
