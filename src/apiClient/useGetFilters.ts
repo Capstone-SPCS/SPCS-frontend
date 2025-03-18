@@ -29,12 +29,26 @@ const ADD_SUBSCRIPTION_MUTATION = `
         insert_subscriptions(objects: [{user_id: $userID, satellite_id: $newSatelliteId}]) {
             affected_rows
             returning {
-            id
+                id
             }
         }
     }
+`;
 
-`
+const DELETE_SUBSCRIPTION_MUTATION = `
+    mutation DeleteUserSubscription($userID: String!, $satelliteId: bigint!) {
+        delete_subscriptions(
+            where: { 
+                _and: [
+                    { user_id: { _eq: $userID } },
+                    { satellite_id: { _eq: $satelliteId } }
+                ]
+            }
+        ) {
+            affected_rows
+        }
+    }
+`;
 
 interface Subscription {
     satellite_id: string;
@@ -55,7 +69,11 @@ export const useGetUserSubscriptions = () => {
 
     const insertMutation = useMutation({
         mutation: ADD_SUBSCRIPTION_MUTATION
-    })
+    });
+
+    const deleteMutation = useMutation({
+        mutation: DELETE_SUBSCRIPTION_MUTATION
+    });
 
     useEffect(() => {
         if (data) {
@@ -91,5 +109,22 @@ export const useGetUserSubscriptions = () => {
         }
     };
 
-    return { subscriptions, loading, error, fetchSubscriptions, updateSubscriptions, addSubscription }; // Expose state and functions
+    const deleteSubscription = async (userID: string, satelliteId: number) => {
+        try {
+            await deleteMutation.mutate({ userID, satelliteId });
+            fetchSubscriptions(userID); // Refresh subscriptions after deletion
+        } catch (err: any) {
+            setError(err);
+        }
+    };
+
+    return {
+        subscriptions,
+        loading,
+        error,
+        fetchSubscriptions,
+        updateSubscriptions,
+        addSubscription,
+        deleteSubscription
+    }; // Expose state and functions
 };
