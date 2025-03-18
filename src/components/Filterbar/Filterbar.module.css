@@ -81,3 +81,17 @@
 	color: grey;
 	margin-top: 5%;
 }
+
+.subscriptionDelete {
+	cursor: pointer;
+}
+
+.subscriptionContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-left: 5%;
+	padding-right: 15%;
+	box-sizing: border-box;
+	width: 100%;
+}

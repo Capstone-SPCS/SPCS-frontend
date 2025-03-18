@@ -17,7 +17,8 @@ export default function Filterbar({ children }: { children: ReactNode }) {
 	const [myPreferencesSatelliteId, setMyPreferencesSatelliteID] = useState<number | null>(null)
 	const [satelliteFilter, setSatelliteFIlter] = useState<string | null>(null)
 
-	const { subscriptions, fetchSubscriptions, addSubscription } = useGetUserSubscriptions()
+	const { subscriptions, fetchSubscriptions, addSubscription, deleteSubscription } =
+		useGetUserSubscriptions()
 
 	useEffect(() => {
 		if (userId) {
@@ -34,6 +35,10 @@ export default function Filterbar({ children }: { children: ReactNode }) {
 		if (typeof myPreferencesSatelliteId === 'number') {
 			addSubscription(userId || '', myPreferencesSatelliteId)
 		}
+	}
+
+	const handleDeleteSubscription = (satelliteId: number) => {
+		deleteSubscription(userId!, satelliteId)
 	}
 
 	const handleFilterBySatellite = () => {
@@ -73,7 +78,15 @@ export default function Filterbar({ children }: { children: ReactNode }) {
 							<span>List of current subscriptions: </span>
 							<div className={styles.listOfSubs}>
 								{subscriptions.map((subIndex) => (
-									<div> - Sattelite: {subIndex.satellite_id}</div>
+									<div className={styles.subscriptionContainer}>
+										{' '}
+										- Sattelite: {subIndex.satellite_id}{' '}
+										<span
+											className={styles.subscriptionDelete}
+											onClick={() => handleDeleteSubscription(parseInt(subIndex?.satellite_id!))}>
+											X
+										</span>
+									</div>
 								))}
 							</div>
 
