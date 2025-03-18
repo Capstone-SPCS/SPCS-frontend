@@ -42,3 +42,11 @@
 	justify-content: space-around;
 	gap: 30px;
 }
+
+.errorMessage {
+	color: #ff0000;
+	font-size: 14px;
+	margin: 8px 0;
+	text-align: center;
+	width: 100%;
+}

@@ -1,4 +1,3 @@
-// LoginPage.jsx
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar'
 import CustomInput from '../../components/CustomInput'
@@ -7,13 +6,22 @@ import styles from './Login.module.css'
 import useLogin from '../../hooks/useLogin'
 
 const Login = () => {
-	const { login } = useLogin()
+	const { login, error } = useLogin()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
+	const [loginError, setLoginError] = useState('')
 
-	const handleSubmit = (e: { preventDefault: () => void }) => {
+	const handleSubmit = async (e: { preventDefault: () => void }) => {
 		e.preventDefault()
-		// Handle login logic here
+		try {
+			const loginSuccessful = await login(email, password)
+			if (!loginSuccessful) {
+				setLoginError('Invalid login credentials')
+			}
+		} catch (err) {
+			setLoginError('Invalid login credentials')
+			console.error(err)
+		}
 	}
 
 	return (
@@ -35,14 +43,8 @@ const Login = () => {
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
-						<CustomButton
-							type="submit"
-							onClick={async () => {
-								const loginSuccessful = await login(email, password)
-								console.log('LOGIN SUCCESSFUL', loginSuccessful)
-							}}>
-							Login
-						</CustomButton>
+						{(loginError || error) && <p className={styles.errorMessage}>{loginError || error}</p>}
+						<CustomButton type="submit">Login</CustomButton>
 					</form>
 				</div>
 			</main>
