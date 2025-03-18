@@ -10,6 +10,7 @@ import { useHasuraSubscription } from '../../apiClient/useWebsocket'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import Filterbar from '../../components/Filterbar'
+import { Toaster, toast } from 'react-hot-toast'
 
 interface Event {
 	created_at: string
@@ -69,7 +70,36 @@ const FrontDashboard = () => {
 	}
 
 	const handleDispatch = () => {
-		alert('DISPATCH FUNCTCTIONALITY TBD')
+		const CCDM = cdms?.find((cdm) => cdm.id === selectedCDM)
+
+		if (!CCDM) {
+			toast.error('No CDM selected')
+			return
+		}
+
+		// Convert CCDM object to formatted text
+		const textToCopy = `
+	  CDM Details:
+	  ID: ${CCDM.id}
+	  Message ID: ${CCDM.message_id}
+	  Event ID: ${CCDM.event_id}
+	  Object Type: ${CCDM.object_type}
+	  POC: ${CCDM.poc}
+	  TCA: ${CCDM.tca}
+	  Source: ${CCDM.source}
+	  Operator: ${CCDM.operator}
+		`.trim()
+
+		// Copy the formatted text to clipboard
+		navigator.clipboard
+			.writeText(textToCopy)
+			.then(() => {
+				toast.success('Message copied to clipboard')
+			})
+			.catch((err) => {
+				toast.error('Failed to copy message')
+				console.error('Failed to copy: ', err)
+			})
 	}
 
 	useEffect(() => {
@@ -83,6 +113,7 @@ const FrontDashboard = () => {
 
 	return (
 		<div className={styles.container}>
+			<Toaster position="top-center" />
 			<AlertModal isOpen={!!latestMessage} onClose={handleAlertClose} cdmData={cdms?.[0]} />
 			<CDMModal
 				isOpen={modalOpen}
