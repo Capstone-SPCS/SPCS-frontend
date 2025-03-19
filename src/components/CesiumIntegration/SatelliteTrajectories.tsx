@@ -12,6 +12,14 @@ import {
 } from "cesium";
 import { CDM } from "../../types/CDM";
 
+interface ManeuverInput {
+  satId: string;
+  time: string;
+  velocityX: string;
+  velocityY: string;
+  velocityZ: string;
+}
+
 interface SatelliteData {
   satelliteId: string;
   CDMs: CDM[];
@@ -24,6 +32,7 @@ interface SatelliteTrajectoriesProps {
   updateInterval?: number;
   showPredictedPath: boolean;
   onLastTimeFound?: (time: JulianDate) => void;
+  maneuveringInput?: ManeuverInput | null;
 }
 
 const createPosition = (cdm: CDM, satLabel: string): Cartesian3 => {
@@ -43,7 +52,6 @@ const calculateEllipsoidDimensions = (cdm: CDM, satLabel: string): { radii: Cart
   // Default minimum and maximum values for ellipsoid dimensions in meters
   const MIN_AXIS = 100; // 100 meters minimum size
   const MAX_AXIS = 100000; // 100 km maximum size
-  const DEFAULT_SIZE = 1000; // 1 km default size
   
   // Get covariance values based on satellite label
   let radial = satLabel === "sat1" ? cdm.sat1_cn_r : cdm.sat2_cn_r;
@@ -63,15 +71,6 @@ const calculateEllipsoidDimensions = (cdm: CDM, satLabel: string): { radii: Cart
   const semiMinorAxis = boundValue(Math.sqrt(Number(tangential)) * scaleFactor, MIN_AXIS, MAX_AXIS);
   const semiVerticalAxis = boundValue(Math.sqrt(Number(normal)) * scaleFactor, MIN_AXIS, MAX_AXIS);
   
-  console.log(`Ellipsoid dimensions for ${satLabel}:`, {
-    radial: Number(radial),
-    tangential: Number(tangential),
-    normal: Number(normal),
-    semiMajorAxis,
-    semiMinorAxis, 
-    semiVerticalAxis
-  });
-  
   // Create radii vector
   const radii = new Cartesian3(semiMajorAxis, semiMinorAxis, semiVerticalAxis);
   
@@ -88,21 +87,39 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
   updateInterval = 5000,
   showPredictedPath,
   onLastTimeFound,
+  maneuveringInput,
 }) => {
   const { viewer } = useCesium();
   const positionProperty = useRef(new SampledPositionProperty());
   const predictedPositionProperty = useRef(new SampledPositionProperty());
+  const maneuverPositionProperty = useRef(new SampledPositionProperty());
   const ellipsoidRadiiProperty = useRef(new SampledProperty(Cartesian3));
   const ellipsoidOrientationProperty = useRef(new SampledProperty(Quaternion));
   const [lastTime, setLastTime] = useState<JulianDate | null>(null);
   const [isClockInitialized, setIsClockInitialized] = useState(false);
   const [hasValidCovariance, setHasValidCovariance] = useState(false);
+  const [hasManeuverData, setHasManeuverData] = useState(false);
+  const [lastManeuverTime, setLastManeuverTime] = useState<string | null>(null);
+  
+  // Flag to avoid duplicate data fetching after maneuver
+  const pendingManeuverUpdate = useRef(false);
 
   const colors = useMemo(() => ({
     main: satLabel === "sat1" ? Color.YELLOW.withAlpha(0.7) : Color.RED.withAlpha(0.7),
     predicted: Color.CYAN.withAlpha(0.7),
     ellipsoid: satLabel === "sat1" ? Color.YELLOW.withAlpha(0.3) : Color.RED.withAlpha(0.3),
+    maneuver: Color.GREEN.withAlpha(0.7),
   }), [satLabel]);
+
+  // Check if the current maneuver input is for this satellite
+  const isManeuverForThisSatellite = useMemo(() => {
+    return maneuveringInput && maneuveringInput.satId === satLabel;
+  }, [maneuveringInput, satLabel]);
+
+  // Determine if we should show the maneuver path
+  const shouldShowManeuverPath = useMemo(() => {
+    return hasManeuverData && isManeuverForThisSatellite;
+  }, [hasManeuverData, isManeuverForThisSatellite]);
 
   const entityStyles = useMemo(() => ({
     point: {
@@ -141,6 +158,17 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
       resolution: 60,
       show: showPredictedPath,
     },
+    maneuverPath: {
+      width: 4,
+      material: new PolylineDashMaterialProperty({
+        color: colors.maneuver,
+        dashLength: 8.0,
+      }),
+      leadTime: 86400 * 7,
+      trailTime: 0,
+      resolution: 60,
+      show: shouldShowManeuverPath || false, // Convert to boolean to fix the type error
+    },
     ellipsoid: {
       radii: ellipsoidRadiiProperty.current,
       material: colors.ellipsoid,
@@ -152,7 +180,150 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
       stackPartitions: 24,
       orientation: ellipsoidOrientationProperty.current,
     },
-  }), [colors, showPredictedPath, hasValidCovariance]);
+  }), [colors, showPredictedPath, hasValidCovariance, shouldShowManeuverPath]);
+
+  // Reset maneuver data when the satellite changes or when maneuver input is cleared
+  useEffect(() => {
+    if (!maneuveringInput) {
+      // Reset maneuver data when input is cleared
+      console.log(`${satLabel}: No maneuver input, resetting maneuver data`);
+      setHasManeuverData(false);
+      setLastManeuverTime(null);
+      pendingManeuverUpdate.current = false;
+      // Reset the maneuver position property
+      maneuverPositionProperty.current = new SampledPositionProperty();
+    }
+  }, [maneuveringInput, satLabel]);
+
+  // Function to update maneuver based on position data
+  const updateManeuverData = (positionData: SampledPositionProperty, maneuverTimeStr: string, velocityData: { x: number, y: number, z: number }) => {
+    console.log(`${satLabel}: Attempting to update maneuver data`, {
+      velocityData
+    });
+    
+    try {
+      if (!lastTime) {
+        console.warn(`${satLabel}: No last time available yet`);
+        return false;
+      }
+      
+      // Use the last time from the trajectory
+      const startTime = lastTime;
+      const startPosition = positionData.getValue(startTime);
+      
+      if (startPosition) {
+        console.log(`${satLabel}: Using last trajectory position as maneuver start point`, startPosition);
+        
+        // Create a new maneuver position property
+        const newManeuverPositionProperty = new SampledPositionProperty();
+        
+        // Add the starting point
+        newManeuverPositionProperty.addSample(startTime, startPosition);
+        
+        // Calculate new positions based on velocity changes
+        for (let i = 1; i <= 10; i++) {
+          const futureTime = JulianDate.addSeconds(startTime, i * 600, new JulianDate());
+          
+          // Simple linear projection based on velocity input
+          const deltaX = velocityData.x * (i * 600);
+          const deltaY = velocityData.y * (i * 600);
+          const deltaZ = velocityData.z * (i * 600);
+          
+          const newPosition = new Cartesian3(
+            startPosition.x + deltaX * 1000, // Convert to meters
+            startPosition.y + deltaY * 1000,
+            startPosition.z + deltaZ * 1000
+          );
+          
+          newManeuverPositionProperty.addSample(futureTime, newPosition);
+        }
+        
+        // Update the ref after all samples have been added
+        maneuverPositionProperty.current = newManeuverPositionProperty;
+        setHasManeuverData(true);
+        
+        console.log(`${satLabel}: Updated maneuver path successfully using last trajectory position`);
+        return true;
+      } else {
+        console.warn(`${satLabel}: Could not find position at the last trajectory time`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`${satLabel}: Error updating maneuver:`, error);
+      return false;
+    }
+  };
+
+  // Effect to handle maneuver inputs
+  useEffect(() => {
+    // Log the input for debugging
+    console.log(`${satLabel} checking maneuver input:`, {
+      maneuveringInput,
+      currentSatLabel: satLabel,
+      inputSatId: maneuveringInput?.satId,
+      matches: maneuveringInput?.satId === satLabel
+    });
+    
+    // First check if we have any maneuver input at all
+    if (!maneuveringInput) {
+      console.log(`${satLabel}: No maneuver input provided`);
+      return;
+    }
+    
+    // Now check if this input is meant for this satellite
+    if (maneuveringInput.satId !== satLabel) {
+      console.log(`${satLabel}: Maneuver input is for ${maneuveringInput.satId}, not for this satellite`);
+      // Clear any existing maneuver data if it's not for this satellite
+      if (hasManeuverData) {
+        console.log(`${satLabel}: Clearing existing maneuver data since input is for different satellite`);
+        setHasManeuverData(false);
+        maneuverPositionProperty.current = new SampledPositionProperty();
+      }
+      return;
+    }
+    
+    console.log(`${satLabel}: Processing maneuver input`, maneuveringInput);
+    
+    // Check if this is a new maneuver input (prevent duplicate processing)
+    if (lastManeuverTime !== maneuveringInput.time) {
+      console.log(`${satLabel}: New maneuver time detected`, {
+        lastManeuverTime,
+        newTime: maneuveringInput.time
+      });
+      
+      setLastManeuverTime(maneuveringInput.time);
+      
+      const velocityData = {
+        x: parseFloat(maneuveringInput.velocityX),
+        y: parseFloat(maneuveringInput.velocityY),
+        z: parseFloat(maneuveringInput.velocityZ)
+      };
+      
+      // Check if all velocity components are zero - if so, clear the maneuver
+      if (velocityData.x === 0 && velocityData.y === 0 && velocityData.z === 0) {
+        console.log(`${satLabel}: Zero velocity detected, clearing maneuver`);
+        setHasManeuverData(false);
+        maneuverPositionProperty.current = new SampledPositionProperty();
+        return;
+      }
+      
+      // Attempt to update the maneuver data
+      const success = updateManeuverData(
+        positionProperty.current, 
+        maneuveringInput.time,
+        velocityData
+      );
+      
+      if (!success) {
+        // If it failed (likely because position data not loaded yet),
+        // set flag to try again after next data load
+        pendingManeuverUpdate.current = true;
+        console.log(`${satLabel}: Scheduled maneuver update for next data load`);
+      }
+    } else {
+      console.log(`${satLabel}: Ignoring duplicate maneuver time`, maneuveringInput.time);
+    }
+  }, [maneuveringInput, satLabel, lastManeuverTime, hasManeuverData]);
 
   useEffect(() => {
     let mounted = true;
@@ -183,17 +354,18 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
           setIsClockInitialized(true);
         }
   
-        positionProperty.current = new SampledPositionProperty();
-        predictedPositionProperty.current = new SampledPositionProperty();
-        ellipsoidRadiiProperty.current = new SampledProperty(Cartesian3);
-        ellipsoidOrientationProperty.current = new SampledProperty(Quaternion);
+        // Create new position properties without losing any existing maneuver data
+        const newPositionProperty = new SampledPositionProperty();
+        const newPredictedPositionProperty = new SampledPositionProperty();
+        const newEllipsoidRadiiProperty = new SampledProperty(Cartesian3);
+        const newEllipsoidOrientationProperty = new SampledProperty(Quaternion);
         
         let foundValidCovariance = false;
   
         uniqueCDMs.forEach((cdm, index) => {
           const time = JulianDate.fromIso8601(cdm.creation_date!);
           const position = createPosition(cdm, satLabel);
-          positionProperty.current.addSample(time, position);
+          newPositionProperty.addSample(time, position);
           
           // Check if CDM has required covariance data before calculating ellipsoid
           const hasCovarianceData = (satLabel === "sat1" && 
@@ -208,8 +380,8 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
           if (hasCovarianceData) {
             try {
               const { radii, orientation } = calculateEllipsoidDimensions(cdm, satLabel);
-              ellipsoidRadiiProperty.current.addSample(time, radii);
-              ellipsoidOrientationProperty.current.addSample(time, orientation);
+              newEllipsoidRadiiProperty.addSample(time, radii);
+              newEllipsoidOrientationProperty.addSample(time, orientation);
               foundValidCovariance = true;
             } catch (error) {
               console.error(`Error calculating ellipsoid for ${satLabel}:`, error);
@@ -217,23 +389,23 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
           }
   
           if (index === uniqueCDMs.length - 1) {
-            console.log(`Generating predicted positions for ${satLabel}:`);
+            console.log(`Generating predicted positions for ${satLabel}`);
             
             // Use the last valid covariance data for predictions if available
             let latestRadii: Cartesian3 | undefined;
             let latestOrientation: Quaternion | undefined;
             
             try {
-              latestRadii = ellipsoidRadiiProperty.current.getValue(time);
-              latestOrientation = ellipsoidOrientationProperty.current.getValue(time);
+              latestRadii = newEllipsoidRadiiProperty.getValue(time);
+              latestOrientation = newEllipsoidOrientationProperty.getValue(time);
             } catch (error) {
               console.log(`No valid covariance data available for ${satLabel}`);
             }
             
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 0; i <= 5; i++) {
               const futureTime = JulianDate.addSeconds(time, i * 600, new JulianDate());
               const futurePosition = Cartesian3.multiplyByScalar(position, 1 + i * 0.01, new Cartesian3());
-              predictedPositionProperty.current.addSample(futureTime, futurePosition);
+              newPredictedPositionProperty.addSample(futureTime, futurePosition);
               
               // Add future ellipsoid properties if we have covariance data
               if (latestRadii && latestOrientation) {
@@ -249,22 +421,56 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
                   
                   const safeFutureRadii = new Cartesian3(x, y, z);
                   
-                  ellipsoidRadiiProperty.current.addSample(futureTime, safeFutureRadii);
-                  ellipsoidOrientationProperty.current.addSample(futureTime, latestOrientation);
+                  newEllipsoidRadiiProperty.addSample(futureTime, safeFutureRadii);
+                  newEllipsoidOrientationProperty.addSample(futureTime, latestOrientation);
                 } catch (error) {
                   console.error(`Error adding future ellipsoid for ${satLabel}:`, error);
                 }
               }
-              
-              console.log(`Future Time: ${JulianDate.toIso8601(futureTime)}, Position:`, futurePosition);
             }
           }
         });
   
+        // Only after all processing is successful, update the ref objects
+        positionProperty.current = newPositionProperty;
+        predictedPositionProperty.current = newPredictedPositionProperty;
+        ellipsoidRadiiProperty.current = newEllipsoidRadiiProperty;
+        ellipsoidOrientationProperty.current = newEllipsoidOrientationProperty;
+        
         setHasValidCovariance(foundValidCovariance);
         setLastTime(stop);
         if (onLastTimeFound) {
           onLastTimeFound(stop);
+        }
+        
+        // If we had a pending maneuver update, try again now that we have position data
+        if (pendingManeuverUpdate.current && lastManeuverTime && maneuveringInput && maneuveringInput.satId === satLabel) {
+          console.log(`${satLabel}: Attempting previously scheduled maneuver update`);
+          
+          const velocityData = {
+            x: parseFloat(maneuveringInput.velocityX),
+            y: parseFloat(maneuveringInput.velocityY),
+            z: parseFloat(maneuveringInput.velocityZ)
+          };
+          
+          // Check if all velocity components are zero - if so, clear the maneuver
+          if (velocityData.x === 0 && velocityData.y === 0 && velocityData.z === 0) {
+            console.log(`${satLabel}: Zero velocity detected, clearing maneuver`);
+            setHasManeuverData(false);
+            maneuverPositionProperty.current = new SampledPositionProperty();
+            pendingManeuverUpdate.current = false;
+            return;
+          }
+          
+          const success = updateManeuverData(
+            newPositionProperty, 
+            lastManeuverTime,
+            velocityData
+          );
+          
+          if (success) {
+            pendingManeuverUpdate.current = false;
+          }
         }
   
       } catch (error) {
@@ -279,7 +485,7 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
       mounted = false;
       clearInterval(interval);
     };
-  }, [satelliteId, fetchData, updateInterval, viewer, isClockInitialized, satLabel, onLastTimeFound]);  
+  }, [satelliteId, fetchData, updateInterval, viewer, isClockInitialized, satLabel, onLastTimeFound, maneuveringInput]);  
 
   return (
     <>
@@ -310,6 +516,13 @@ const SatelliteTrajectories: React.FC<SatelliteTrajectoriesProps> = ({
           name={`Uncertainty-Ellipsoid-${satelliteId}`}
           position={positionProperty.current}
           ellipsoid={entityStyles.ellipsoid}
+        />
+      )}
+      {shouldShowManeuverPath && (
+        <Entity
+          name={`Maneuver-Path-${satLabel}`}
+          position={maneuverPositionProperty.current}
+          path={entityStyles.maneuverPath}
         />
       )}
     </>

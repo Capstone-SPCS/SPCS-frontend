@@ -4,9 +4,18 @@ import { Ion, createWorldTerrainAsync, JulianDate } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import SatelliteTrajectories from "./SatelliteTrajectories";
 import { event } from "../../types/CDM";
+import ManeuveringModal from "./ManeuveringModal";
 
 interface CesiumIntegrationProps {
   data?: event;
+}
+
+interface ManeuverInput {
+  satId: string;
+  time: string;
+  velocityX: string;
+  velocityY: string;
+  velocityZ: string;
 }
 
 const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
@@ -14,9 +23,10 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [showPredictedPath, setShowPredictedPath] = useState(false);
   const [lastTime, setLastTime] = useState<JulianDate | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const viewerRef = React.useRef<any>(null);
+  const [maneuveringInput, setManeuveringInput] = useState<ManeuverInput | null>(null);
 
-  // Set the Cesium token explicitly and validate it
   useEffect(() => {
     if (!process.env.REACT_APP_CESIUM_TOKEN) {
       console.error(
@@ -25,10 +35,8 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
       return;
     }
 
-    // Set the token directly
     Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_TOKEN;
 
-    // Initialize Cesium with error handling
     const initCesium = async () => {
       try {
         const terrain = await createWorldTerrainAsync();
@@ -42,10 +50,8 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
     initCesium();
   }, []);
 
-  // Handle updating the latest time found
   const handleLastTimeFound = (time: JulianDate) => {
     setLastTime((prevTime) => {
-      // Keep the latest time between satellites
       if (!prevTime || JulianDate.greaterThan(time, prevTime)) {
         return time;
       }
@@ -53,17 +59,13 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
     });
   };
 
-  // Toggle predicted path and jump to last frame
   const togglePrediction = () => {
     setShowPredictedPath((prev) => !prev);
-    
-    // Jump to last frame if we have a last time
     if (lastTime && viewerRef.current?.cesiumElement) {
       viewerRef.current.cesiumElement.clock.currentTime = lastTime.clone();
     }
   };
 
-  // Memoize viewer props to optimize rendering and prevent unnecessary re-renders
   const viewerProps: ViewerProps = useMemo(
     () => ({
       terrainProvider,
@@ -72,27 +74,24 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
       animation: true,
       baseLayerPicker: false,
       scene3DOnly: true,
-      requestRenderMode: false, // Optimize rendering performance
+      requestRenderMode: false,
       maximumRenderTimeChange: Infinity,
       ref: viewerRef,
     }),
     [terrainProvider]
   );
 
-  // Fetch Satellite 1 data
   const fetchSatellite1Data = async () => {
     if (!data) {
       console.warn("No event data provided for Satellite 1.");
       return null;
     }
-    else {console.log("fetched cds sat 1" , data.cdms);}
     return {
       satelliteId: data.sat1_object_designator,
       CDMs: data.cdms,
     };
   };
 
-  // Fetch Satellite 2 data
   const fetchSatellite2Data = async () => {
     if (!data) {
       console.warn("No event data provided for Satellite 2.");
@@ -104,15 +103,31 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
     };
   };
 
-  // Styles for the container
+  const handleManeuveringSave = (maneuverInputs: ManeuverInput) => {
+    console.log("Maneuvering options saved:", maneuverInputs);
+    setManeuveringInput(maneuverInputs);
+    
+    // // Optionally, jump to the maneuver time in the viewer
+    // if (viewerRef.current?.cesiumElement) {
+    //   try {
+    //     const maneuverTime = JulianDate.fromIso8601(maneuverInputs.time);
+    //     viewerRef.current.cesiumElement.clock.currentTime = maneuverTime.clone();
+    //   } catch (error) {
+    //     console.error("Error setting clock to maneuver time:", error);
+    //   }
+    // }
+    
+    // Close the modal
+    setIsModalOpen(false);
+  };
+
   const containerStyle = {
     width: "100%",
     height: "100%",
     position: "relative" as const,
-    minHeight: "400px", // Ensures visibility
+    minHeight: "400px",
   };
 
-  // Button styles
   const buttonStyle = {
     position: "absolute" as const,
     top: "10px",
@@ -128,22 +143,40 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
     boxShadow: "0px 2px 5px rgba(0,0,0,0.2)",
   };
 
-  // Show a loading message until Cesium is initialized
+  const maneuveringButtonStyle = {
+    ...buttonStyle,
+    top: "50px",
+    backgroundColor: "#f39c12",
+  };
+
+  const resetManeuverButtonStyle = {
+    ...buttonStyle,
+    top: "90px",
+    backgroundColor: "#e74c3c",
+    display: maneuveringInput ? "block" : "none",
+  };
+
   if (!terrainProvider || !isInitialized) {
     return <div style={containerStyle}>Loading...</div>;
   }
 
-  // Render the Cesium viewer and satellite trajectories
   return (
     <div style={containerStyle}>
-      {/* Prediction toggle button */}
-      <button 
-        style={buttonStyle}
-        onClick={togglePrediction}
-      >
+      <button style={buttonStyle} onClick={togglePrediction}>
         {showPredictedPath ? "Hide Predictions" : "Show Predictions"}
       </button>
+      <button style={maneuveringButtonStyle} onClick={() => setIsModalOpen(true)}>
+        Maneuvering Option
+      </button>
+      <button 
+        style={resetManeuverButtonStyle} 
+        onClick={() => setManeuveringInput(null)}
+      >
+        Reset Maneuver
+      </button>
 
+      <ManeuveringModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleManeuveringSave} />
+      
       <ResiumViewer {...viewerProps}>
         <SatelliteTrajectories
           satLabel="sat1"
@@ -152,6 +185,7 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
           updateInterval={100000}
           showPredictedPath={showPredictedPath}
           onLastTimeFound={handleLastTimeFound}
+          maneuveringInput={maneuveringInput}
         />
         <SatelliteTrajectories
           satLabel="sat2"
@@ -160,6 +194,7 @@ const CesiumIntegration: React.FC<CesiumIntegrationProps> = ({ data }) => {
           updateInterval={100000}
           showPredictedPath={showPredictedPath}
           onLastTimeFound={handleLastTimeFound}
+          maneuveringInput={maneuveringInput}
         />
       </ResiumViewer>
     </div>
