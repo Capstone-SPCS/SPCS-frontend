@@ -66,12 +66,10 @@ const EventDetail = () => {
 					<h2 className={styles.sectionTitle}>CDM Specific</h2>
 					<div className={styles.graphGrid}>
 						<div className={styles.graphCard}>
-							<h3 className={styles.graphTitle}>Probability ISO lines</h3>
-							<div className={styles.graphContent}>{/* Insert your graph component here */}</div>
+							<div className={styles.graphContent}>{<IsolineGraph></IsolineGraph>}</div>
 						</div>
 						<div className={styles.graphCard}>
-							<h3 className={styles.graphTitle}>Miss distance ISO lines</h3>
-							<div className={styles.graphContent}>{/* Insert your graph component here */}</div>
+							<div className={styles.graphContent}>{<IsolineGraph></IsolineGraph>}</div>
 						</div>
 						<div className={styles.graphCard}>
 							<h3 className={styles.graphTitle}>Time to TCA</h3>
@@ -80,18 +78,16 @@ const EventDetail = () => {
 					</div>
 				</section>
 				{/* Event Specific Section */}
-
 				<section className={styles.section}>
 					<h2 className={styles.sectionTitle}>Event Specific</h2>
 					<div className={styles.graphGrid}>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
-								<IsolineGraph></IsolineGraph>
-								{/* <Probability
+								<Probability
 									id={event?.id!}
 									sat1_object_designator={event?.sat1_object_designator!}
 									sat2_object_designator={event?.sat2_object_designator!}
-									cdms={event?.cdms!}></Probability> */}
+									cdms={event?.cdms!}></Probability>
 							</div>
 						</div>
 						<div className={styles.graphCard}>
