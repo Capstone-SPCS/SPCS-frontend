@@ -102,19 +102,22 @@ export default function Filterbar({ children }: { children: ReactNode }) {
 							<button className={styles.updateButton} onClick={handleAddSubscription}>
 								Add
 							</button>
-							<h4>Alerting Thresholds</h4>
 							{location.pathname.includes('front') && (
-								<label className={styles.filterOption}>
-									<span>Probabliity of collision</span>
-									<input type="text" placeholder="Enter a POC" className={styles.textField} />
-								</label>
-							)}
-							<label className={styles.filterOption}>
-								<span>Time of Closest Approach</span>
-								<input type="text" placeholder="Enter a TCA" className={styles.textField} />
-							</label>
+								<div>
+									<h4>Alerting Thresholds</h4>
 
-							<button className={styles.updateButton}>Update</button>
+									<label className={styles.filterOption}>
+										<span>Probabliity of collision</span>
+										<input type="text" placeholder="Enter a POC" className={styles.textField} />
+									</label>
+									<label className={styles.filterOption}>
+										<span>Time of Closest Approach</span>
+										<input type="text" placeholder="Enter a TCA" className={styles.textField} />
+									</label>
+
+									<button className={styles.updateButton}>Update</button>
+								</div>
+							)}
 						</div>
 					</div>
 				)}

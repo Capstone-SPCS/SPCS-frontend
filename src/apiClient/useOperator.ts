@@ -51,5 +51,11 @@ export const useGetOperator = () => {
         }
     };
 
-    return { operator, loading, operatorError, fetchOperator };
+    const clearOperator = () => {
+        setOperator(null);
+        setLoading(true);
+        setOperatorError(undefined);
+    }
+
+    return { operator, loading, operatorError, fetchOperator, clearOperator };
 };

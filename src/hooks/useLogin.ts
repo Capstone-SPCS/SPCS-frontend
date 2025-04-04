@@ -17,7 +17,7 @@ const useLogin = () => {
 
     const isAuthenticated = useSelector((state: RootState) => state.login.isAuthenticated);
     const dispatch = useDispatch();
-    const { operator, fetchOperator } = useGetOperator();
+    const { operator, fetchOperator, clearOperator } = useGetOperator();
 
     // Watch for operator changes and complete the authentication
     useEffect(() => {
@@ -79,6 +79,7 @@ const useLogin = () => {
     };
 
     const logout = async () => {
+        clearOperator();
         supabase.auth.signOut();
     };
 
