@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar'
 import EventOverview from '../../components/EventOverview'
 import styles from './TechDashboard.module.css'
-import { useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
+import { Event, useGetEventsPreview } from '../../apiClient/useGetEventsPreview'
 import { useNavigate } from 'react-router-dom'
 import { useHasuraSubscription } from '../../apiClient/useWebsocket'
 import Filterbar from '../../components/Filterbar'
@@ -12,9 +12,12 @@ import { RootState } from '../../redux/store'
 const TechDashboard = () => {
 	const navigate = useNavigate()
 	const [currentPage, setCurrentPage] = useState(0)
+	const [firstResponse, setFirstResponse] = useState(true)
 	const satelliteId = useSelector((state: RootState) => state.filters.satelliteId)
 	const subscriptions = useSelector((state: RootState) => state.filters.subscriptions)
 	const { fetchEvents, events, totalEventsCount } = useGetEventsPreview()
+
+	const [displayedEvents, setDisplayedEvents] = useState<Event[]>([])
 
 	const { isConnected, data, connect } = useHasuraSubscription(
 		'ws://104.131.168.48:8080/v1/graphql'
@@ -28,12 +31,37 @@ const TechDashboard = () => {
 	}, [subscriptions])
 
 	useEffect(() => {
-		console.log(data)
+		if (firstResponse) {
+			if (data) {
+				console.log(data)
+				setFirstResponse(false)
+			}
+		} else {
+			if (data) {
+				setDisplayedEvents((prevEvents) => {
+					// Add the new event to the beginning of the array
+					const updatedEvents = [data as Event, ...prevEvents]
+
+					// If we have more than 9 events, remove the last one
+					if (updatedEvents.length > 9) {
+						return updatedEvents.slice(0, 9)
+					}
+
+					return updatedEvents
+				})
+			}
+		}
 	}, [isConnected, data])
 
 	useEffect(() => {
 		fetchEvents(currentPage, satelliteId)
 	}, [currentPage, satelliteId])
+
+	useEffect(() => {
+		if (events) {
+			setDisplayedEvents(events)
+		}
+	}, [events])
 
 	// Calculate pagination
 	const totalPages = Math.ceil((totalEventsCount || 1) / 12)
@@ -54,7 +82,7 @@ const TechDashboard = () => {
 				<main className={styles.main}>
 					<h1 className={styles.title}>Dashboard</h1>
 					<div className={styles.grid}>
-						{events?.map?.((event) => (
+						{displayedEvents?.map?.((event) => (
 							<div
 								key={event.id}
 								onClick={() => handleEventClick(event.id)}

@@ -17,17 +17,18 @@ interface SubscriptionResponse {
   events: Event[];
 }
 
+
 const SUBSCRIPTION_QUERY = `
   subscription GetMostRecentEvent($satelliteIds: [String!]!) {
     events(
       limit: 1, 
+      order_by: {created_at: desc},
       where: {
         _or: [
           { sat1_object_designator: { _in: $satelliteIds } },
           { sat2_object_designator: { _in: $satelliteIds } }
         ]
-      }, 
-      order_by: { created_at: desc }
+      }
     ) {
         created_at
         id
@@ -40,7 +41,7 @@ const SUBSCRIPTION_QUERY = `
             }
         }
     }
-}
+  }
 `;
 
 export const useHasuraSubscription = (url: string) => {

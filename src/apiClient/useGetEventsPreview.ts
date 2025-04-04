@@ -68,7 +68,7 @@ query GetFilteredEventsPreview($limit: Int!, $offset: Int!, $satelliteId: String
   }
 }
 `;
-interface Event {
+export interface Event {
   created_at: string; // ISO 8601 date string
   id: string; // Unique identifier for the event
   sat1_object_designator: string; // Satellite 1 designator
