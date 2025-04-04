@@ -16,9 +16,9 @@ declare global {
 window.CESIUM_BASE_URL = '/cesium';
 
 root.render(
-	<React.StrictMode>
+	// <React.StrictMode>
 		<Provider store={store}>
 			<App />
 		</Provider>
-	</React.StrictMode>
+	// </React.StrictMode>
 )
