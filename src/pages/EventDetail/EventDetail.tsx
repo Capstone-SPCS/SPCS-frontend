@@ -6,6 +6,7 @@ import styles from './EventDetail.module.css'
 import Probability from '../../components/Graphs/Probability'
 import MissDistance from '../../components/Graphs/MissDistance'
 import RSSErrorEvolution from '../../components/Graphs/RSSEvolution'
+import IsolineGraph from '../../components/Graphs/IsoLine'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import useEventData from '../../apiClient/useEventData'
@@ -85,11 +86,12 @@ const EventDetail = () => {
 					<div className={styles.graphGrid}>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
-								<Probability
+								<IsolineGraph></IsolineGraph>
+								{/* <Probability
 									id={event?.id!}
 									sat1_object_designator={event?.sat1_object_designator!}
 									sat2_object_designator={event?.sat2_object_designator!}
-									cdms={event?.cdms!}></Probability>
+									cdms={event?.cdms!}></Probability> */}
 							</div>
 						</div>
 						<div className={styles.graphCard}>
