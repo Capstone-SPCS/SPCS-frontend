@@ -132,8 +132,9 @@ const CollisionAvoidanceTradespace: React.FC = () => {
     
     // Create SVG element
     const svg = d3.select(svgRef.current)
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("viewBox", `0 0 ${width} ${height}`)  // This maintains the aspect ratio
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     
@@ -357,25 +358,26 @@ const CollisionAvoidanceTradespace: React.FC = () => {
     return vectorNorm(Rmiss);
   };
   
-  return (
-    <div className="flex justify-center items-center flex-col p-4">
-      <div className="mb-4">
-        <button 
-          className={`px-4 py-2 mr-2 ${viewMode === 'heatmap' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setViewMode('heatmap')}
-        >
-          Heatmap View
-        </button>
-        <button 
-          className={`px-4 py-2 ${viewMode === 'isoline' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setViewMode('isoline')}
-        >
-          Isoline View
-        </button>
-      </div>
-      <svg ref={svgRef} className="bg-white shadow-lg rounded-lg"></svg>
+// In your CollisionAvoidanceTradespace component
+return (
+  <div className="flex justify-center items-center flex-col p-4" style={{ width: '100%', height: '100%' }}>
+    <div className="mb-4">
+      <button 
+        className={`px-4 py-2 mr-2 ${viewMode === 'heatmap' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        onClick={() => setViewMode('heatmap')}
+      >
+        Heatmap View
+      </button>
+      <button 
+        className={`px-4 py-2 ${viewMode === 'isoline' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        onClick={() => setViewMode('isoline')}
+      >
+        Isoline View
+      </button>
     </div>
-  );
+    <svg ref={svgRef} style={{ width: '100%', height: '100%' }}></svg>
+  </div>
+);
 };
 
 export default CollisionAvoidanceTradespace;
