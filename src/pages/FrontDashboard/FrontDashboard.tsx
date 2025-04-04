@@ -41,7 +41,6 @@ const FrontDashboard = () => {
 	const totalPages = Math.ceil((totalCDMCount || 1) / 9)
 
 	useEffect(() => {
-		if (unsubscribe) unsubscribe()
 		setUnsubscribe(connect(subscriptions))
 		console.log(isConnected)
 	}, [subscriptions])

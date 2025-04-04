@@ -39,7 +39,7 @@ const EventDetail = () => {
 				{/* Back Navigation */}
 				<button onClick={() => window.history.back()} className={styles.backButton}>
 					<ArrowLeft className={styles.backIcon} />
-					Back to Event Dashboard
+					Back to Events Dashboard
 				</button>
 
 				{/* Header */}
