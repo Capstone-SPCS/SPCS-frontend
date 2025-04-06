@@ -134,7 +134,7 @@ const CollisionAvoidanceTradespace: React.FC = () => {
     const svg = d3.select(svgRef.current)
       .attr("width", "100%")
       .attr("height", "100%")
-      .attr("viewBox", `0 0 ${width} ${height}`)  // This maintains the aspect ratio
+      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     
@@ -181,12 +181,14 @@ const CollisionAvoidanceTradespace: React.FC = () => {
       const cellsY = timesBeforeTCA.length;
       const gridData = new Array(cellsY).fill(0).map(() => new Array(cellsX).fill(0));
       
-      // Fill the grid with miss distance values
+      // Fill the grid with miss distance values but in REVERSED order for Y
+      // This fixes the isoline orientation issue
       results.forEach(d => {
         const xIndex = deltaVs.indexOf(d.deltaV);
         const yIndex = timesBeforeTCA.indexOf(d.timeBeforeTCA);
         if (xIndex >= 0 && yIndex >= 0) {
-          gridData[yIndex][xIndex] = d.missDistance;
+          // Invert the Y index to fix the isoline orientation
+          gridData[cellsY - 1 - yIndex][xIndex] = d.missDistance;
         }
       });
       
@@ -358,26 +360,26 @@ const CollisionAvoidanceTradespace: React.FC = () => {
     return vectorNorm(Rmiss);
   };
   
-// In your CollisionAvoidanceTradespace component
-return (
-  <div className="flex justify-center items-center flex-col p-4" style={{ width: '100%', height: '100%' }}>
-    <div className="mb-4">
-      <button 
-        className={`px-4 py-2 mr-2 ${viewMode === 'heatmap' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        onClick={() => setViewMode('heatmap')}
-      >
-        Heatmap View
-      </button>
-      <button 
-        className={`px-4 py-2 ${viewMode === 'isoline' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        onClick={() => setViewMode('isoline')}
-      >
-        Isoline View
-      </button>
+  // In your CollisionAvoidanceTradespace component
+  return (
+    <div className="flex justify-center items-center flex-col p-4" style={{ width: '100%', height: '100%' }}>
+      <div className="mb-4">
+        <button 
+          className={`px-4 py-2 mr-2 ${viewMode === 'heatmap' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('heatmap')}
+        >
+          Heatmap View
+        </button>
+        <button 
+          className={`px-4 py-2 ${viewMode === 'isoline' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('isoline')}
+        >
+          Isoline View
+        </button>
+      </div>
+      <svg ref={svgRef} style={{ width: '100%', height: '100%' }}></svg>
     </div>
-    <svg ref={svgRef} style={{ width: '100%', height: '100%' }}></svg>
-  </div>
-);
+  );
 };
 
 export default CollisionAvoidanceTradespace;
