@@ -1,27 +1,42 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import CustomButton from './CustomButton';
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import CustomButton from './CustomButton'
 
-describe('CustomButton Component', () => {
-  test('renders button with correct text', () => {
-    render(<CustomButton>Click Me</CustomButton>);
-    expect(screen.getByText('Click Me')).toBeInTheDocument();
-  });
+// Mock the CSS module
+jest.mock('./CustomButton.module.css', () => ({
+	button: 'button-class'
+}))
 
-  test('calls onClick when clicked', () => {
-    const handleClick = jest.fn();
-    render(<CustomButton onClick={handleClick}>Click Me</CustomButton>);
-    fireEvent.click(screen.getByText('Click Me'));
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
+describe('CustomButton', () => {
+	it('renders with children', () => {
+		render(<CustomButton>Click me</CustomButton>)
+		expect(screen.getByText('Click me')).toBeInTheDocument()
+	})
 
-  test('applies correct button type', () => {
-    render(<CustomButton type="submit">Submit</CustomButton>);
-    expect(screen.getByText('Submit')).toHaveAttribute('type', 'submit');
-  });
+	it('calls onClick handler when clicked', () => {
+		const handleClick = jest.fn()
+		render(<CustomButton onClick={handleClick}>Click me</CustomButton>)
+		fireEvent.click(screen.getByText('Click me'))
+		expect(handleClick).toHaveBeenCalledTimes(1)
+	})
 
-  test('applies additional props correctly', () => {
-    render(<CustomButton data-testid="custom-button">Test</CustomButton>);
-    expect(screen.getByTestId('custom-button')).toBeInTheDocument();
-  });
-}); 
+	it('renders with default type "button"', () => {
+		render(<CustomButton>Click me</CustomButton>)
+		expect(screen.getByRole('button')).toHaveAttribute('type', 'button')
+	})
+
+	it('renders with specified type', () => {
+		render(<CustomButton type="submit">Submit</CustomButton>)
+		expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
+	})
+
+	it('passes additional props to button element', () => {
+		render(
+			<CustomButton data-testid="test-button" disabled>
+				Click me
+			</CustomButton>
+		)
+		const button = screen.getByTestId('test-button')
+		expect(button).toBeDisabled()
+	})
+})
