@@ -1,0 +1,26 @@
+/* CustomButton.module.css */
+.button {
+	width: 100%;
+	padding: 12px 24px;
+	font-size: 16px;
+	font-weight: 500;
+	color: white;
+	background-color: #5c6ac4;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.button:hover {
+	background-color: #4c5bad;
+}
+
+.button:active {
+	background-color: #3f4d99;
+}
+
+.button:disabled {
+	background-color: #a0aec0;
+	cursor: not-allowed;
+}

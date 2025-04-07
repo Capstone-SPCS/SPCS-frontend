@@ -1,0 +1,36 @@
+/* CDMDataTable.module.css */
+.tableContainer {
+	background: white;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.row {
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.row:last-child {
+	border-bottom: none;
+}
+
+.key,
+.value {
+	padding: 12px 16px;
+	font-size: 14px;
+}
+
+.key {
+	font-weight: 500;
+	color: #1f2937;
+	width: 40%;
+	background-color: #f8fafc;
+}
+
+.value {
+	color: #4b5563;
+}

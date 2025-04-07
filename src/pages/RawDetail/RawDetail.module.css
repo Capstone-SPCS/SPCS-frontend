@@ -1,0 +1,79 @@
+/* RawCDMPage.module.css */
+.container {
+	min-height: 100vh;
+	background-color: #f8f9fa;
+}
+
+.main {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 32px 24px;
+}
+
+.header {
+	margin-bottom: 32px;
+}
+
+.backButton {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: none;
+	border: none;
+	color: #5c6ac4;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	padding: 0;
+	margin-bottom: 16px;
+}
+
+.backButton:hover {
+	color: #4c5bad;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: 600;
+	color: #5c6ac4;
+	margin: 0;
+}
+
+.content {
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+}
+
+.tabs {
+	display: flex;
+	border-bottom: 1px solid #e2e8f0;
+	background-color: #f8fafc;
+}
+
+.tab {
+	padding: 16px 24px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #64748b;
+	background: none;
+	border: none;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+}
+
+.tab:hover {
+	color: #5c6ac4;
+}
+
+.activeTab {
+	color: #5c6ac4;
+	border-bottom-color: #5c6ac4;
+	background-color: #ffffff;
+}
+
+.dataContainer {
+	padding: 24px;
+}

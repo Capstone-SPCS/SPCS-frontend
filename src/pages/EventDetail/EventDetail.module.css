@@ -1,0 +1,142 @@
+/* EventDetails.module.css */
+.container {
+	min-height: auto;
+	background-color: #f8f9fa;
+}
+
+.main {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 32px 24px;
+	box-sizing: border-box;
+}
+
+.backButton {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: none;
+	border: none;
+	color: #5c6ac4;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	padding: 0;
+	margin-bottom: 16px;
+}
+
+.backButton:hover {
+	color: #4f5aa9;
+}
+
+.backIcon {
+	margin-right: 8px;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 24px;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: 600;
+	color: #5c6ac4;
+}
+
+.rawDataButton {
+	padding: 8px 16px;
+	background-color: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.rawDataButton:hover {
+	background-color: #f8f9fa;
+}
+
+.section {
+	margin-bottom: 32px;
+}
+
+.sectionTitle {
+	font-size: 18px;
+	font-weight: 500;
+	color: #2d3748;
+	margin-bottom: 16px;
+}
+
+.visualizationContainer {
+	background-color: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	margin-bottom: 32px;
+}
+
+.visualizationHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.fullscreenButton {
+	padding: 6px 12px;
+	background-color: #f8f9fa;
+	border: 1px solid #e2e8f0;
+	border-radius: 4px;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.fullscreenButton:hover {
+	background-color: #e2e8f0;
+}
+
+.visualizationContent {
+	height: 400px;
+	width: 100%;
+	position: relative;
+}
+
+.graphGrid {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 24px;
+	margin-bottom: 32px;
+}
+
+@media (min-width: 768px) {
+	.graphGrid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.graphCard {
+	background-color: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	padding: 8px;
+}
+
+.graphTitle {
+	font-size: 14px;
+	font-weight: 500;
+	color: #4a5568;
+	margin-bottom: 12px;
+}
+
+.graphContent {
+	height: 100%; /* Ensure it adapts to the parent */
+	width: 100%; /* Ensure it fills the parent */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden; /* Prevent overflow if the content exceeds */
+}

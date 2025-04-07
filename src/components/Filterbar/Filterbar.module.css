@@ -1,0 +1,96 @@
+/* Filterbar.module.css */
+
+.container {
+	min-width: 300px;
+	overflow: hidden;
+	display: flex;
+	min-height: 100vh;
+	background-color: #fbfbfb;
+}
+
+.sidebar {
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	transition: width 0.1s ease;
+}
+
+.toggleContainer {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.updateButton {
+	padding: 8px 16px;
+	background-color: #5c6ac4;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.toggleButton {
+	background: none;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+.title {
+	font-size: 18px;
+	margin: 0;
+}
+
+.filters {
+	min-width: 300px;
+	overflow: hidden;
+	margin-top: 20px;
+}
+
+.filterOption {
+	display: flex;
+	align-items: center;
+}
+
+.textField {
+	margin-left: 10px;
+	padding: 5px;
+	width: flex;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.mainContent {
+	flex-grow: 1;
+	padding: 20px;
+	background-color: #fff;
+	font-size: 16px;
+}
+
+.myPreferences {
+	margin-left: 2%;
+}
+
+.listOfSubs {
+	color: grey;
+	margin-top: 5%;
+}
+
+.subscriptionDelete {
+	cursor: pointer;
+}
+
+.subscriptionContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-left: 5%;
+	padding-right: 15%;
+	box-sizing: border-box;
+	width: 100%;
+}

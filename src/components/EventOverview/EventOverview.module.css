@@ -1,0 +1,44 @@
+/* EventOverview.module.css */
+.card {
+	background: white;
+	border-radius: 12px;
+	padding: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+	font-size: 18px;
+	font-weight: 600;
+	color: #5c6ac4;
+	margin: 0 0 16px 0;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.label {
+	color: #6b7280;
+	font-size: 14px;
+}
+
+.value {
+	color: #1f2937;
+	font-size: 14px;
+	font-weight: 500;
+}
