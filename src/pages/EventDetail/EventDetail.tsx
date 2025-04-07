@@ -156,7 +156,7 @@ const EventDetail = () => {
 				{/* CDM Specific Section */}
 				<section className={styles.section}>
 					<h2 className={styles.sectionTitle}>CDM Specific</h2>
-					<div className={styles.graphGrid}>
+					<div className={styles.graphGrid2}>
 						<div className={styles.graphCard}>
 							<div className={styles.graphContent}>
 								<IsolineGraph
@@ -188,10 +188,6 @@ const EventDetail = () => {
 									title="Collision Probability Tradespace"
 								/>
 							</div>
-						</div>
-						<div className={styles.graphCard}>
-							<h3 className={styles.graphTitle}>Time to TCA</h3>
-							<div className={styles.graphContent}>{/* Insert your graph component here */}</div>
 						</div>
 					</div>
 				</section>
