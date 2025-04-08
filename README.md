@@ -1,70 +1,201 @@
-# Getting Started with Create React App
+# SPCS Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
 
-## Available Scripts
+This is a React-based frontend application built with TypeScript, utilizing modern web technologies and tools for visualization and real-time data handling.
 
-In the project directory, you can run:
+## Tech Stack
 
-### `npm start`
+- **Core Framework**: React 18 with TypeScript
+- **State Management**: Redux Toolkit
+- **Routing**: React Router DOM v7
+- **Styling**: CSS with shadcn/ui components
+- **Data Visualization**: D3.js, Cesium/Resium for 3D visualization
+- **Real-time Communication**: Socket.IO
+- **Backend Communication**: Axios, GraphQL
+- **Database Integration**: Supabase
+- **Testing**: Jest with React Testing Library
+- **Component Development**: Storybook
+- **Build Tool**: Create React App with TypeScript
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Root Directory
 
-### `npm test`
+```
+/
+├── src/               # Source code
+├── public/           # Static assets
+├── .storybook/       # Storybook configuration
+├── node_modules/     # Dependencies
+├── package.json      # Project configuration and dependencies
+└── tsconfig.json     # TypeScript configuration
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Source Code Organization (`/src`)
 
-### `npm run build`
+```
+src/
+├── apiClient/        # API client configurations and services
+├── components/       # Reusable React components
+├── utils/           # Utility functions and helpers
+├── redux/           # Redux store, actions, and reducers
+├── supabase/        # Supabase client and related functions
+├── hooks/           # Custom React hooks
+├── types/           # TypeScript type definitions
+├── pages/           # Page components and routing
+└── main/            # Main application setup
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Key Directories and Their Purposes
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. `/src/components`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Contains reusable React components. Components should be:
 
-### `npm run eject`
+- Modular and reusable
+- Well-documented with TypeScript types
+- Accompanied by Storybook stories when applicable
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 2. `/src/pages`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Contains page-level components that correspond to different routes in the application.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 3. `/src/redux`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Houses Redux-related code:
 
-## Learn More
+- Store configuration
+- Slices for different features
+- Actions and reducers
+- State selectors
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4. `/src/apiClient`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Contains API integration code:
 
-### Code Splitting
+- API client configuration
+- Service functions for making API calls
+- Request/response types
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 5. `/src/supabase`
 
-### Analyzing the Bundle Size
+Manages Supabase integration:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Client configuration
+- Database queries
+- Authentication functions
 
-### Making a Progressive Web App
+### 6. `/src/hooks`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Custom React hooks for:
 
-### Advanced Configuration
+- Shared logic
+- State management
+- Side effects
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 7. `/src/utils`
 
-### Deployment
+Utility functions and helpers:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Helper functions
+- Constants
+- Shared logic
 
-### `npm run build` fails to minify
+### 8. `/src/types`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+TypeScript type definitions:
+
+- Shared interfaces
+- Type declarations
+- Enums
+
+## Environment Variables
+
+The following environment variables are required for the application to function properly. Create a `.env` file in the root directory with these variables:
+
+```env
+# Cesium Ion token for 3D visualization
+REACT_APP_CESIUM_TOKEN=your_cesium_token_here
+
+# Supabase configuration
+REACT_APP_SUPABASE_KEY=your_supabase_anon_key
+REACT_APP_SUPABASE_URL=your_supabase_project_url
+
+# Backend API URL
+REACT_APP_EXPRESS_URL=your_backend_api_url
+```
+
+## Development Workflow
+
+### 1. Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Run tests
+npm test
+
+# Start Storybook
+npm run storybook
+```
+
+### 2. Testing
+
+- Jest and React Testing Library for unit and integration tests
+- Test files located alongside components
+- Run tests with `npm test`
+
+### 3. Component Development
+
+- Use Storybook for component development and documentation
+- Run Storybook with `npm run storybook`
+- Stories should be created for all reusable components
+
+### 4. Building for Production
+
+```bash
+# Create production build
+npm run build
+
+# Build Storybook documentation
+npm run build-storybook
+```
+
+## Best Practices
+
+### 1. Code Organization
+
+- Keep components small and focused
+- Use TypeScript for type safety
+- Follow the established project structure
+
+### 2. State Management
+
+- Use Redux for global state
+- Local state with useState/useReducer
+- Custom hooks for complex state logic
+
+### 3. Testing
+
+- Write tests for all new components
+- Maintain good test coverage
+- Use meaningful test descriptions
+
+### 4. Performance
+
+- Implement code splitting where necessary
+- Use React.memo for expensive components
+- Optimize re-renders with useMemo and useCallback
+
+## Additional Resources
+
+- React Documentation: https://react.dev
+- Redux Toolkit: https://redux-toolkit.js.org
+- Supabase Documentation: https://supabase.com/docs
+- D3.js Documentation: https://d3js.org
+- Cesium Documentation: https://cesium.com/learn/
