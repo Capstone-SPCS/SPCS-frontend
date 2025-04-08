@@ -112,6 +112,14 @@
 	margin-bottom: 32px;
 }
 
+.graphGrid2 {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
 @media (min-width: 768px) {
 	.graphGrid {
 		grid-template-columns: repeat(3, 1fr);
